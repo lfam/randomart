@@ -62,6 +62,16 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 		input = dgst_raw[i];
 		for (b = 0; b < 4; b++) {
 			/* evaluate 2 bit, rest is shifted later */
+
+			/* 
+			 * += addition assignment. a += b aka a = a + b
+			 * input & 0x1 // & is a bitwise logical AND
+			 * 0x1 and  0x2 are hex for 1 and 2
+			 * & 1 : -1 is ternary conditional. a ? b : c
+			 * short for if a; then b; else c
+			 *
+			 * x equals (x plus (if input is 1 then 1) or (ifinput is 2 then -1)) 
+			 */
 			x += (input & 0x1) ? 1 : -1;
 			y += (input & 0x2) ? 1 : -1;
 
@@ -74,6 +84,9 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 			/* augment the field */
 			if (field[x][y] < len - 2)
 				field[x][y]++;
+			/*
+			 * >> is bitwise shift to the right
+			 */
 			input = input >> 2;
 		}
 	}
