@@ -1,10 +1,13 @@
 CFLAGS= -Wall -g
 
-.PHONY : again all clean
+.PHONY : again clean clear_screen
 
-all: randomart io
+all: randomart
 
 clean:
-	rm -f randomart io
+	rm -f randomart
 
-again: clean all
+clear_screen:
+	clear
+
+again: clean clear_screen all
