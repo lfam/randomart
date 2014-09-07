@@ -10,4 +10,4 @@ clean:
 clear_screen:
 	clear
 
-again: clean clear_screen all
+again: clear_screen clean all
