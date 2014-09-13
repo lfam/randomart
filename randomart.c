@@ -1,3 +1,16 @@
+#include <stdio.h>
+#include <sys/types.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sys/param.h>
+
+#ifndef MAX
+#define MAX(a,b) (((a)>(b))?(a):(b))
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#endif
+
+#define BUFFER_SIZE 32
+
 /*
  * Draw an ASCII-Art representing the fingerprint so human brain can
  * profit from its built-in pattern recognition ability.
@@ -31,6 +44,10 @@
 #define	FLDBASE		8
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
+
+/* dummy struct definition */
+const struct sshkey *k;
+
 static char *
 fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
     const struct sshkey *k)
@@ -44,7 +61,8 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 	u_char	 field[FLDSIZE_X][FLDSIZE_Y];
 	size_t	 i, tlen;
 	u_int	 b;
-	int	 x, y, r;
+	int	 x, y;
+	int	 r;
 	size_t	 len = strlen(augmentation_string) - 1;
 
 	if ((retval = calloc((FLDSIZE_X + 3), (FLDSIZE_Y + 2))) == NULL)
@@ -83,11 +101,11 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 	field[x][y] = len;
 
 	/* assemble title */
-	r = snprintf(title, sizeof(title), "[%s %u]",
-		sshkey_type(k), sshkey_size(k));
+//	r = snprintf(title, sizeof(title), "[%s %u]",
+//		sshkey_type(k), sshkey_size(k));
 	/* If [type size] won't fit, then try [type]; fits "[ED25519-CERT]" */
-	if (r < 0 || r > (int)sizeof(title))
-		snprintf(title, sizeof(title), "[%s]", sshkey_type(k));
+//	if (r < 0 || r > (int)sizeof(title))
+//		snprintf(title, sizeof(title), "[%s]", sshkey_type(k));
 	tlen = strlen(title);
 
 	/* output upper border */
@@ -118,4 +136,32 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 	*p++ = '+';
 
 	return retval;
+}
+
+int main(int argc, char *argv[])
+{
+/*
+	char line[BUFFER_SIZE];
+	size_t dgst_raw_len;
+
+	while(fgets(line, BUFFER_SIZE, stdin) != EOF) {
+		dgst_raw_len = strlen(line);
+		printf("%zu\n",dgst_raw_len);
+		puts (line);
+	}
+*/
+	int bytes_read;
+	size_t nbytes = 32;
+	size_t input_len;
+	char *my_string;
+	u_char *my_u_string;
+
+	my_string = (char *) malloc (nbytes + 1);
+	bytes_read = getline (&my_string, &nbytes, stdin);
+
+	input_len = strlen(my_string);
+	my_u_string = my_string;
+
+	printf("%s\n",fingerprint_randomart(my_u_string, input_len, k));
+	return 0;
 }
