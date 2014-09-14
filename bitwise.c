@@ -13,7 +13,8 @@ main(int argc, char *argv[])
 int
 bitwise(void) {
 	int i;
-	char *input = "s,dmfnw,5mn 3m24n52 m,3n4,m23n4m,3 n,sdfefmn3 3mn mn3 mn3 m N#M N#M rn3m3nrmn mndmand mnma dld aowd iaw od uiawy duawy dhga hdabn bd3 8u9D#D@#DDWADBASDBSNAFBFAOFIUAWIOFJLKFmI";	
+	char input[100];
+	fgets(input, 100, stdin);
 	size_t input_len = strlen(input);
 	int iinput;
 	int b;
