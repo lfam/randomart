@@ -2,14 +2,36 @@
 #include <string.h>
 
 int bitwise(void);
-int handcheck(int input);
+void handcheck(int input);
 
 int
 main(int argc, char *argv[])
 {
-	handcheck(getchar(stdin));
 	return 0;
 }
+
+long int
+str2hex(void) {
+
+	return 0;
+}
+
+void
+handcheck(int input) {
+	int b,x,y;
+
+		for (b = 0; b < 4; b++) {
+			x = (input & 0x1) ? 1 : -1;
+			printf("input is %d\n",input);
+			y = (input & 0x2) ? 1 : -1;
+			printf("input is %d\n",input);
+			printf("move command for %d is %d %d\n",
+				input,x,y);
+			input = input >> 2; 
+		}
+}
+
+
 
 int
 bitwise(void) {
@@ -40,3 +62,4 @@ bitwise(void) {
 
 	return 0;
 }
+
