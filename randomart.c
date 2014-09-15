@@ -80,6 +80,9 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 		input = dgst_raw[i];
 		printf("input (index of dgst_raw) is %d this step\n",input);
 		for (b = 0; b < 4; b++) {
+
+			printf("input is %d\n",input);
+
 			/* evaluate 2 bit, rest is shifted later */
 			x += (input & 0x1) ? 1 : -1;
 			y += (input & 0x2) ? 1 : -1;
@@ -89,6 +92,8 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 			y = MAX(y, 0);
 			x = MIN(x, FLDSIZE_X - 1);
 			y = MIN(y, FLDSIZE_Y - 1);
+
+			printf("ternary results of input %d bit pair is %d %d\n\n",b,x,y);
 
 			/* augment the field */
 			if (field[x][y] < len - 2)
