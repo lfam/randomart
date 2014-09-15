@@ -2,11 +2,12 @@
 #include <string.h>
 
 int bitwise(void);
+int handcheck(int input);
 
 int
 main(int argc, char *argv[])
 {
-	bitwise();
+	handcheck(getchar(stdin));
 	return 0;
 }
 
