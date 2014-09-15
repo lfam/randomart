@@ -1,18 +1,26 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 int bitwise(void);
 void handcheck(int input);
+long int str2hex(void);
 
 int
 main(int argc, char *argv[])
 {
+	str2hex();
 	return 0;
 }
 
 long int
 str2hex(void) {
+	char *p, *s;
+	long li;
 
+	s="74aa";
+	li = strtol(s,&p,16);
+	printf("li is %ld\n",li);
 	return 0;
 }
 
