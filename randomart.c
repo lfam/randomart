@@ -78,6 +78,7 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 		int input;
 		/* each byte conveys four 2-bit move commands */
 		input = dgst_raw[i];
+		printf("input (index of dgst_raw) is %d this step\n",input);
 		for (b = 0; b < 4; b++) {
 			/* evaluate 2 bit, rest is shifted later */
 			x += (input & 0x1) ? 1 : -1;
@@ -150,18 +151,20 @@ int main(int argc, char *argv[])
 		puts (line);
 	}
 */
-	int bytes_read;
 	size_t nbytes = 32;
 	size_t input_len;
 	char *my_string;
 	u_char *my_u_string;
 
 	my_string = (char *) malloc (nbytes + 1);
-	bytes_read = getline (&my_string, &nbytes, stdin);
+	getline (&my_string, &nbytes, stdin);
 
 	input_len = strlen(my_string);
+	printf("my_string is %s\n",my_string);
 	my_u_string = my_string;
+	printf("my_u_string is %us\n",my_u_string);
 
-	printf("%s\n",fingerprint_randomart(my_u_string, input_len, k));
+	fingerprint_randomart(my_string, input_len, k);
+//	printf("%s\n",fingerprint_randomart(my_u_string, input_len, k));
 	return 0;
 }
