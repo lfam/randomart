@@ -49,7 +49,7 @@
 const struct sshkey *k;
 
 static char *
-fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
+fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len,
     const struct sshkey *k)
 {
 	/*
@@ -62,7 +62,7 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 	size_t	 i, tlen;
 	u_int	 b;
 	int	 x, y;
-	int	 r;
+//	int	 r;
 	size_t	 len = strlen(augmentation_string) - 1;
 
 	if ((retval = calloc((FLDSIZE_X + 3), (FLDSIZE_Y + 2))) == NULL)
@@ -74,14 +74,21 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 	y = FLDSIZE_Y / 2;
 
 	/* process raw key */
-	for (i = 0; i < dgst_raw_len; i++) {
-		int input;
+
+	printf("dgst_raw is %s\n",dgst_raw);
+
+	for (i = 0; i < dgst_raw_len; i+=2) {
+		long input = 0;
+		char pair_of_chars[2];
+
+		memset(pair_of_chars,0,2 * sizeof(int));
+		memcpy(pair_of_chars,&dgst_raw[i],sizeof(pair_of_chars));
+
+		input = strtol(pair_of_chars,NULL,16);
+
 		/* each byte conveys four 2-bit move commands */
-		input = dgst_raw[i];
-		printf("input (index of dgst_raw) is %d this step\n",input);
 		for (b = 0; b < 4; b++) {
 
-			printf("input is %d\n",input);
 
 			/* evaluate 2 bit, rest is shifted later */
 			x += (input & 0x1) ? 1 : -1;
@@ -92,8 +99,6 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 			y = MAX(y, 0);
 			x = MIN(x, FLDSIZE_X - 1);
 			y = MIN(y, FLDSIZE_Y - 1);
-
-			printf("ternary results of input %d bit pair is %d %d\n\n",b,x,y);
 
 			/* augment the field */
 			if (field[x][y] < len - 2)
@@ -146,30 +151,13 @@ fingerprint_randomart(u_char *dgst_raw, size_t dgst_raw_len,
 
 int main(int argc, char *argv[])
 {
-/*
-	char line[BUFFER_SIZE];
-	size_t dgst_raw_len;
+	size_t len;
+	char input[1024];
+	
+	fgets(input, 1023, stdin);
+	len = strlen(input);
 
-	while(fgets(line, BUFFER_SIZE, stdin) != EOF) {
-		dgst_raw_len = strlen(line);
-		printf("%zu\n",dgst_raw_len);
-		puts (line);
-	}
-*/
-	size_t nbytes = 32;
-	size_t input_len;
-	char *my_string;
-	u_char *my_u_string;
-
-	my_string = (char *) malloc (nbytes + 1);
-	getline (&my_string, &nbytes, stdin);
-
-	input_len = strlen(my_string);
-	printf("my_string is %s\n",my_string);
-	my_u_string = my_string;
-	printf("my_u_string is %us\n",my_u_string);
-
-	fingerprint_randomart(my_string, input_len, k);
-//	printf("%s\n",fingerprint_randomart(my_u_string, input_len, k));
+//	fingerprint_randomart(input, len, k);
+	printf("%s\n",fingerprint_randomart(input, len, k));
 	return 0;
 }
