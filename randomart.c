@@ -146,7 +146,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	return retval;
 }
 
-int main(void)
+int 
+main(void)
 {
 	size_t len;
 	char input[1024];
