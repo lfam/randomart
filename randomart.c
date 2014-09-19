@@ -69,7 +69,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 
 	/* process raw key */
 
-	printf("dgst_raw is %s\n",dgst_raw);
+	printf("input is %s",dgst_raw);
 
 	for (i = 0; i < dgst_raw_len; i+=2) {
 		long input = 0;
@@ -149,12 +149,23 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 int 
 main(void)
 {
-	size_t len;
-	char input[1024];
-	
-	fgets(input, 1023, stdin);
-	len = strlen(input);
+/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
+	char* line = 0;
+	size_t line_buf_len=0;
+	ssize_t line_len;
+	ssize_t rart_input_len;
 
-	printf("%s\n",fingerprint_randomart(input, len));
+	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
+		if ((line)[line_len - 1] == '\n') {
+			rart_input_len = line_len - 1;
+		} else {
+			rart_input_len = line_len;
+		}
+		printf("%s\n",fingerprint_randomart(line, rart_input_len));
+		memset(line,0,line_len);
+	}
+
+	free(line);
+
 	return 0;
 }
