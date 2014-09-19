@@ -9,8 +9,6 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 
-#define BUFFER_SIZE 32
-
 /*
  * Draw an ASCII-Art representing the fingerprint so human brain can
  * profit from its built-in pattern recognition ability.
@@ -45,12 +43,8 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
-/* dummy struct definition */
-const struct sshkey *k;
-
 static char *
-fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len,
-    const struct sshkey *k)
+fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 {
 	/*
 	 * Chars to be used after each other every time the worm
@@ -62,7 +56,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len,
 	size_t	 i, tlen;
 	u_int	 b;
 	int	 x, y;
-//	int	 r;
+/*	int	 r; */
 	size_t	 len = strlen(augmentation_string) - 1;
 
 	if ((retval = calloc((FLDSIZE_X + 3), (FLDSIZE_Y + 2))) == NULL)
@@ -112,12 +106,15 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len,
 	field[x][y] = len;
 
 	/* assemble title */
-//	r = snprintf(title, sizeof(title), "[%s %u]",
-//		sshkey_type(k), sshkey_size(k));
-	/* If [type size] won't fit, then try [type]; fits "[ED25519-CERT]" */
-//	if (r < 0 || r > (int)sizeof(title))
-//		snprintf(title, sizeof(title), "[%s]", sshkey_type(k));
+/*	r = snprintf(title, sizeof(title), "[%s %u]",
+		sshkey_type(k), sshkey_size(k));
+*/	/* If [type size] won't fit, then try [type]; fits "[ED25519-CERT]" */
+/*	if (r < 0 || r > (int)sizeof(title))
+		snprintf(title, sizeof(title), "[%s]", sshkey_type(k));
 	tlen = strlen(title);
+*/
+	/* tlen is defined here to fix a compiler warning */
+	tlen = 0;
 
 	/* output upper border */
 	p = retval;
@@ -149,7 +146,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len,
 	return retval;
 }
 
-int main(int argc, char *argv[])
+int main(void)
 {
 	size_t len;
 	char input[1024];
@@ -157,7 +154,6 @@ int main(int argc, char *argv[])
 	fgets(input, 1023, stdin);
 	len = strlen(input);
 
-//	fingerprint_randomart(input, len, k);
-	printf("%s\n",fingerprint_randomart(input, len, k));
+	printf("%s\n",fingerprint_randomart(input, len));
 	return 0;
 }
