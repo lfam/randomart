@@ -71,8 +71,6 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 
 	/* process raw key */
 
-	printf("input is %s",dgst_raw);
-
 	for (i = 0; i < dgst_raw_len; i+=2) {
 		long input = 0;
 		char pair_of_chars[2];
@@ -147,6 +145,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 
 	printf("%s\n",retval);
 	free(retval);
+	printf("input was %s\n",dgst_raw);
 	return 0;
 }
 
