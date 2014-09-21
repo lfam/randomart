@@ -43,6 +43,8 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
+int fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
+
 int
 fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 {
