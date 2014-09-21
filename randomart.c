@@ -145,7 +145,6 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 		*p++ = '-';
 	*p++ = '+';
 
-//	return retval;
 	printf("%s\n",retval);
 	free(retval);
 	return 0;
@@ -166,7 +165,6 @@ main(void)
 		} else {
 			rart_input_len = line_len;
 		}
-//		printf("%s\n",fingerprint_randomart(line, rart_input_len));
 		fingerprint_randomart(line,rart_input_len);
 		memset(line,0,line_len);
 	}
