@@ -43,7 +43,7 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
-char * fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
+char *fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
 
 char * 
 fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
@@ -151,11 +151,11 @@ int
 main(void)
 {
 /* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
-	char*	line = 0;
+	char	*line = 0;
 	size_t	line_buf_len=0;
 	ssize_t	line_len;
 	ssize_t	rart_input_len;
-	char *	randomart = NULL;
+	char	*randomart = NULL;
 
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		if ((line)[line_len - 1] == '\n') {
