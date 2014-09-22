@@ -124,7 +124,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	*p++ = '+';
 	for (i = 0; i < (FLDSIZE_X - tlen) / 2; i++)
 		*p++ = '-';
-	memcpy(p, title, tlen);
+//	memcpy(p, title, tlen);
 	p += tlen;
 	for (i = p - retval - 1; i < FLDSIZE_X; i++)
 		*p++ = '-';
