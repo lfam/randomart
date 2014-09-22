@@ -76,6 +76,11 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 		memset(pair_of_chars,0,2 * sizeof(int));
 		memcpy(pair_of_chars,&dgst_raw[i],sizeof(pair_of_chars));
 
+		/*
+		 * input must be <= 255, i.e. it must fit in one byte
+		 * this works here because the max value of 2 chars read as
+		 * base16 is 255
+		 */
 		input = strtoul(pair_of_chars,NULL,16);
 
 		/* each byte conveys four 2-bit move commands */
