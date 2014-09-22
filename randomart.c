@@ -141,7 +141,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 		*p++ = '-';
 	*p++ = '+';
 
-	printf("input was %s\n",dgst_raw);
+	fprintf(stderr,"\ninput is %s",dgst_raw);
 	return retval;
 }
 
