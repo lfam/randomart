@@ -152,14 +152,14 @@ main(void)
 	char	*line = 0;
 	size_t	line_buf_len=0;
 	ssize_t	line_len;
-	ssize_t	rart_input_len;
+	size_t	rart_input_len;
 	char	*randomart = NULL;
 
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		if ((line)[line_len - 1] == '\n') {
-			rart_input_len = line_len - 1;
+			rart_input_len = (size_t)line_len - 1;
 		} else {
-			rart_input_len = line_len;
+			rart_input_len = (size_t)line_len;
 		}
 		randomart = fingerprint_randomart(line,rart_input_len);
 		memset(line,0,line_len);
