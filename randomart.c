@@ -162,8 +162,13 @@ main(void)
 			rart_input_len = (size_t)line_len;
 		}
 		randomart = fingerprint_randomart(line,rart_input_len);
-		memset(line,0,line_len);
-		printf("%s\n",randomart);
+		if (randomart == NULL) {
+			fprintf(stderr,"fingerprintf_randomart() returned NULL\n");
+			return 1;
+		} else {
+			memset(line,0,(size_t)line_len);
+			printf("%s\n",randomart);
+		}
 	}
 
 	free(randomart);
