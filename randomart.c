@@ -43,9 +43,9 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
-int fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
+char * fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
 
-int
+char * 
 fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 {
 	/*
@@ -62,7 +62,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	size_t	len = strlen(augmentation_string) - 1;
 	
 	if ((retval = calloc((FLDSIZE_X + 3), (FLDSIZE_Y + 2))) == NULL)
-		return 1;
+		return NULL;
 
 	/* initialize field */
 	memset(field, 0, FLDSIZE_X * FLDSIZE_Y * sizeof(char));
@@ -143,10 +143,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 		*p++ = '-';
 	*p++ = '+';
 
-	printf("%s\n",retval);
-	free(retval);
 	printf("input was %s\n",dgst_raw);
-	return 0;
+	return retval;
 }
 
 int 
@@ -157,6 +155,7 @@ main(void)
 	size_t	line_buf_len=0;
 	ssize_t	line_len;
 	ssize_t	rart_input_len;
+	char *	randomart;
 
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		if ((line)[line_len - 1] == '\n') {
@@ -164,10 +163,12 @@ main(void)
 		} else {
 			rart_input_len = line_len;
 		}
-		fingerprint_randomart(line,rart_input_len);
+		randomart = fingerprint_randomart(line,rart_input_len);
 		memset(line,0,line_len);
+		printf("%s\n",randomart);
 	}
 
+	free(randomart);
 	free(line);
 
 	return 0;
