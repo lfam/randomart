@@ -155,7 +155,7 @@ main(void)
 	size_t	line_buf_len=0;
 	ssize_t	line_len;
 	ssize_t	rart_input_len;
-	char *	randomart;
+	char *	randomart = NULL;
 
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		if ((line)[line_len - 1] == '\n') {
