@@ -70,13 +70,13 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	/* process raw key */
 
 	for (i = 0; i < dgst_raw_len; i+=2) {
-		long input = 0;
-		char pair_of_chars[2];
+		unsigned long	input = 0;
+		char	pair_of_chars[2];
 
 		memset(pair_of_chars,0,2 * sizeof(int));
 		memcpy(pair_of_chars,&dgst_raw[i],sizeof(pair_of_chars));
 
-		input = strtol(pair_of_chars,NULL,16);
+		input = strtoul(pair_of_chars,NULL,16);
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
@@ -161,7 +161,9 @@ main(void)
 		} else {
 			rart_input_len = (size_t)line_len;
 		}
+
 		randomart = fingerprint_randomart(line,rart_input_len);
+
 		if (randomart == NULL) {
 			fprintf(stderr,"fingerprintf_randomart() returned NULL\n");
 			return 1;
