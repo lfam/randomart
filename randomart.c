@@ -1,8 +1,6 @@
 #include <stdio.h>
-#include <sys/types.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/param.h>
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -54,9 +52,9 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	 */
 	char	*augmentation_string = " .o+=*BOX@%&#/^SE";
 	char	*retval, *p, title[FLDSIZE_X];
-	u_char	field[FLDSIZE_X][FLDSIZE_Y];
+	unsigned char	field[FLDSIZE_X][FLDSIZE_Y];
 	size_t	i, tlen;
-	u_int	b;
+	unsigned int	b;
 	int	x, y;
 /*	int	r; */
 	size_t	len = strlen(augmentation_string) - 1;
