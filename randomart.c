@@ -43,10 +43,10 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
-int fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len, int base);
+int fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
 
 int
-fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len, int base)
+fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 {
 	/*
 	 * Chars to be used after each other every time the worm
@@ -78,7 +78,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len, int base)
 		memset(pair_of_chars,0,2 * sizeof(int));
 		memcpy(pair_of_chars,&dgst_raw[i],sizeof(pair_of_chars));
 
-		input = strtol(pair_of_chars,NULL,base);
+		input = strtol(pair_of_chars,NULL,16);
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
@@ -150,30 +150,13 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len, int base)
 }
 
 int 
-main(int argc, char *argv[])
+main(void)
 {
 /* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	char*	line = 0;
 	size_t	line_buf_len=0;
 	ssize_t	line_len;
 	ssize_t	rart_input_len;
-	int	base;
-
-	switch (argc) {
-	case 1:
-		base = 16;
-		break;
-	case 2:
-		base = atoi(argv[1]);
-		break;
-	default:
-		fprintf(stderr,
-			"This program only accepts 1 argument: the base (radix)"
-		       	"of the number system in which to process the input."\
-			"\n"
-		);
-		return 1;
-	}
 
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		if ((line)[line_len - 1] == '\n') {
@@ -181,7 +164,7 @@ main(int argc, char *argv[])
 		} else {
 			rart_input_len = line_len;
 		}
-		fingerprint_randomart(line,rart_input_len,base);
+		fingerprint_randomart(line,rart_input_len);
 		memset(line,0,line_len);
 	}
 
