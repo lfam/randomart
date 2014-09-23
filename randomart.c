@@ -73,8 +73,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 		unsigned long	input = 0;
 		char	pair_of_chars[2];
 
-		memset(pair_of_chars,0,2 * sizeof(int));
-		memcpy(pair_of_chars,&dgst_raw[i],sizeof(pair_of_chars));
+		memset(pair_of_chars, 0, sizeof(pair_of_chars));
+		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars));
 
 		/*
 		 * input must be <= 255, i.e. it must fit in one byte
