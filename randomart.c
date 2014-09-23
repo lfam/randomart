@@ -51,7 +51,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	 * intersects with itself.  Matter of taste.
 	 */
 	char	*augmentation_string = " .o+=*BOX@%&#/^SE";
-	char	*retval, *p, title[FLDSIZE_X];
+	char	*retval, *p;
+//	char	title[FLDSIZE_Y];
 	unsigned char	field[FLDSIZE_X][FLDSIZE_Y];
 	size_t	i, tlen;
 	unsigned int	b;
