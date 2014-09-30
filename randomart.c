@@ -78,7 +78,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars));
 
 		/*
-		 * input must be <= 255, i.e. it must fit in one byte
+		 * input should be <= 255, i.e. it must fit in one byte.
+		 * Only the first byte of each int is processed. 
 		 * this works here because the max value of 2 chars read as
 		 * base16 is 255
 		 */
