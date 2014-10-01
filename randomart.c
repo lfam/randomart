@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
+#include <errno.h>
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -71,19 +73,39 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	/* process raw key */
 
 	for (i = 0; i < dgst_raw_len; i+=2) {
-		unsigned long	input = 0;
+		unsigned int	input = 0;
 		char	pair_of_chars[2];
+		unsigned long ulinput;
+		char *end;
 
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
 		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars));
 
+		errno = 0;
+
+		ulinput = strtoul(pair_of_chars,&end,16);
+/* adapted from
+ * https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
+ */
+		if (end == pair_of_chars) {
+			fprintf(stderr,"%s: not a hexadecimal number\n", 
+				pair_of_chars);
+		} else if ('\0' != *end) {
+			fprintf(stderr,"%s: extra characters at end of input: %s\n", pair_of_chars, end);
+		} else if ((ULONG_MAX == ulinput) && ERANGE == errno) {
+			fprintf(stderr, "%s out of range of type unsigned long\n", pair_of_chars);
+		} else if (ulinput > UINT_MAX) {
+			fprintf(stderr, "%lu greater than UINT_MAX\n", ulinput);
+			fprintf(stderr, "Not all input will be processed.\n");
+		} else {
+			input = (unsigned int)ulinput;
+		}
 		/*
-		 * input should be <= 255, i.e. it must fit in one byte.
+		 * input should be =< 255, i.e. it must fit in one byte.
 		 * Only the first byte of each int is processed. 
 		 * this works here because the max value of 2 chars read as
 		 * base16 is 255
 		 */
-		input = strtoul(pair_of_chars,NULL,16);
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
@@ -163,7 +185,10 @@ main(void)
 	char	*randomart = NULL;
 
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
-		if ((line)[line_len - 1] == '\n') {
+		if (line == NULL) {
+			fprintf(stderr,"null pointer dereference of line\n");
+			return 1;
+		} else if ((line)[line_len - 1] == '\n') {
 			rart_input_len = (size_t)line_len - 1;
 		} else {
 			rart_input_len = (size_t)line_len;
