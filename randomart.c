@@ -155,13 +155,13 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 int 
 main(void)
 {
-/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	char	*line = 0;
 	size_t	line_buf_len=0;
 	ssize_t	line_len;
 	size_t	rart_input_len;
 	char	*randomart = NULL;
 
+	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		if ((line)[line_len - 1] == '\n') {
 			rart_input_len = (size_t)line_len - 1;
