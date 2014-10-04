@@ -43,11 +43,39 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
+int 
+strtoul_wrapper(char *pair_of_chars) {
+	unsigned long 	ulinput;
+	int	input = 0;
+	char *end;
+
+	errno = 0;
+	ulinput = strtoul(pair_of_chars,&end,16);
+
+/* adapted from
+* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
+*/
+	if (end == pair_of_chars) {
+		fprintf(stderr,"%s: not a hexadecimal number\n", 
+			pair_of_chars);
+	} else if ('\0' != *end) {
+		fprintf(stderr,"%s: extra characters at end of input: %s\n", pair_of_chars, end);
+	} else if ((ULONG_MAX == ulinput) && ERANGE == errno) {
+		fprintf(stderr, "%s out of range of type unsigned long\n", pair_of_chars);
+	} else if (ulinput > UINT_MAX) {
+		fprintf(stderr, "%lu greater than UINT_MAX\n", ulinput);
+		fprintf(stderr, "Not all input will be processed.\n");
+	} else {
+		input = (int)ulinput;
+	}
+
+	return input;
+}
+
 char *fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
 
 char * 
-fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
-{
+fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
@@ -73,38 +101,17 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 	/* process raw key */
 
 	for (i = 0; i < dgst_raw_len; i+=2) {
-		unsigned int	input = 0;
 		char	pair_of_chars[2];
-		unsigned long ulinput;
-		char *end;
 
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
 		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars));
-
-		errno = 0;
-
-		ulinput = strtoul(pair_of_chars,&end,16);
-/* adapted from
- * https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
- */
-		if (end == pair_of_chars) {
-			fprintf(stderr,"%s: not a hexadecimal number\n", 
-				pair_of_chars);
-		} else if ('\0' != *end) {
-			fprintf(stderr,"%s: extra characters at end of input: %s\n", pair_of_chars, end);
-		} else if ((ULONG_MAX == ulinput) && ERANGE == errno) {
-			fprintf(stderr, "%s out of range of type unsigned long\n", pair_of_chars);
-		} else if (ulinput > UINT_MAX) {
-			fprintf(stderr, "%lu greater than UINT_MAX\n", ulinput);
-			fprintf(stderr, "Not all input will be processed.\n");
-		} else {
-			input = (unsigned int)ulinput;
-		}
+		
+		int move = strtoul_wrapper(pair_of_chars);
 		/*
-		 * input should be =< 255, i.e. it must fit in one byte.
+		 * move should be =< 255, i.e. it must fit in one byte.
 		 * Only the first byte of each int is processed. 
 		 * this works here because the max value of 2 chars read as
-		 * base16 is 255
+		 * base16 is 255, which is the max value of 8 bits
 		 */
 
 		/* each byte conveys four 2-bit move commands */
@@ -112,8 +119,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 
 
 			/* evaluate 2 bit, rest is shifted later */
-			x += (input & 0x1) ? 1 : -1;
-			y += (input & 0x2) ? 1 : -1;
+			x += (move & 0x1) ? 1 : -1;
+			y += (move & 0x2) ? 1 : -1;
 
 			/* assure we are still in bounds */
 			x = MAX(x, 0);
@@ -124,7 +131,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len)
 			/* augment the field */
 			if (field[x][y] < len - 2)
 				field[x][y]++;
-			input = input >> 2;
+			move = move >> 2;
 		}
 	}
 
