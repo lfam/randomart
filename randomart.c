@@ -197,7 +197,7 @@ main(void)
 		randomart = fingerprint_randomart(line,rart_input_len);
 
 		if (randomart == NULL) {
-			fprintf(stderr,"fingerprintf_randomart() returned NULL\n");
+			fprintf(stderr,"fingerprintf_randomart() returned NULL for input %s\n", line);
 			return 1;
 		} else {
 			memset(line,0,(size_t)line_len);
