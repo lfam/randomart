@@ -43,6 +43,8 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
+char *fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
+
 int 
 strtoul_wrapper(char *pair_of_chars) {
 	unsigned long 	ulinput;
@@ -72,7 +74,6 @@ strtoul_wrapper(char *pair_of_chars) {
 	return input;
 }
 
-char *fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
 
 char * 
 fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
@@ -99,14 +100,15 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 	y = FLDSIZE_Y / 2;
 
 	/* process raw key */
-
 	for (i = 0; i < dgst_raw_len; i+=2) {
-		char	pair_of_chars[2];
 
+		/* break off two characters (hex number) */
+		char	pair_of_chars[2];
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
 		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars));
 		
 		int byte = strtoul_wrapper(pair_of_chars);
+
 		/*
 		 * byte should be =< 255, i.e. it must fit in one byte.
 		 * Only the first byte of each int is processed. 
@@ -204,7 +206,7 @@ main(void)
 		randomart = fingerprint_randomart(line,rart_input_len);
 
 		if (randomart == NULL) {
-			fprintf(stderr,"fingerprintf_randomart() returned NULL for input %s\n", line);
+			fprintf(stderr,"fingerprint_randomart() returned NULL for input %s\n", line);
 			return 1;
 		} else {
 			memset(line,0,(size_t)line_len);
