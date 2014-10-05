@@ -106,9 +106,9 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
 		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars));
 		
-		int move = strtoul_wrapper(pair_of_chars);
+		int byte = strtoul_wrapper(pair_of_chars);
 		/*
-		 * move should be =< 255, i.e. it must fit in one byte.
+		 * byte should be =< 255, i.e. it must fit in one byte.
 		 * Only the first byte of each int is processed. 
 		 * this works here because the max value of 2 chars read as
 		 * base16 is 255, which is the max value of 8 bits
@@ -119,8 +119,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 
 
 			/* evaluate 2 bit, rest is shifted later */
-			x += (move & 0x1) ? 1 : -1;
-			y += (move & 0x2) ? 1 : -1;
+			x += (byte & 0x1) ? 1 : -1;
+			y += (byte & 0x2) ? 1 : -1;
 
 			/* assure we are still in bounds */
 			x = MAX(x, 0);
@@ -131,7 +131,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 			/* augment the field */
 			if (field[x][y] < len - 2)
 				field[x][y]++;
-			move = move >> 2;
+			byte = byte >> 2;
 		}
 	}
 
