@@ -103,9 +103,9 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 	for (i = 0; i < dgst_raw_len; i+=2) {
 
 		/* break off two characters (hex number) */
-		char	pair_of_chars[2];
+		char	pair_of_chars[3];
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
-		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars));
+		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars) - 1);
 		
 		int byte = strtoul_wrapper(pair_of_chars);
 
