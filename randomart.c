@@ -45,14 +45,16 @@
 
 char *fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
 
+int strtoul_wrapper(char *input);
+
 int 
 strtoul_wrapper(char *pair_of_chars) {
-	unsigned long 	ulinput;
-	int	input = 0;
+	unsigned long 	input;
+	int	checked = 0;
 	char *end;
 
 	errno = 0;
-	ulinput = strtoul(pair_of_chars,&end,16);
+	input = strtoul(pair_of_chars,&end,16);
 
 /* adapted from
 * https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
@@ -60,18 +62,21 @@ strtoul_wrapper(char *pair_of_chars) {
 	if (end == pair_of_chars) {
 		fprintf(stderr,"%s: not a hexadecimal number\n", 
 			pair_of_chars);
+		return -1;
 	} else if ('\0' != *end) {
 		fprintf(stderr,"%s: extra characters at end of input: %s\n", pair_of_chars, end);
-	} else if ((ULONG_MAX == ulinput) && ERANGE == errno) {
+		return -1;
+	} else if ((ULONG_MAX == input) && ERANGE == errno) {
 		fprintf(stderr, "%s out of range of type unsigned long\n", pair_of_chars);
-	} else if (ulinput > UINT_MAX) {
-		fprintf(stderr, "%lu greater than UINT_MAX\n", ulinput);
+		return -1;
+	} else if (input > UINT_MAX) {
+		fprintf(stderr, "%lu greater than UINT_MAX\n", input);
 		fprintf(stderr, "Not all input will be processed.\n");
+		return -1;
 	} else {
-		input = (int)ulinput;
+		checked = (int)input;
+		return checked;
 	}
-
-	return input;
 }
 
 
@@ -108,6 +113,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars) - 1);
 		
 		int byte = strtoul_wrapper(pair_of_chars);
+		if (byte == -1) continue;
 
 		/*
 		 * byte should be =< 255, i.e. it must fit in one byte.
