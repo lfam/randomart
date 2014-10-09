@@ -60,11 +60,11 @@ strtoul_wrapper(char *pair_of_chars) {
 * https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
 */
 	if (end == pair_of_chars) {
-		fprintf(stderr,"%s: not a hexadecimal number\n", 
+		fprintf(stderr,"%s", 
 			pair_of_chars);
 		return -1;
 	} else if ('\0' != *end) {
-		fprintf(stderr,"%s: extra characters at end of input: %s\n", pair_of_chars, end);
+		fprintf(stderr,"%s", pair_of_chars);
 		return -1;
 	} else if ((ULONG_MAX == input) && ERANGE == errno) {
 		fprintf(stderr, "%s out of range of type unsigned long\n", pair_of_chars);
@@ -74,6 +74,7 @@ strtoul_wrapper(char *pair_of_chars) {
 		fprintf(stderr, "Not all input will be processed.\n");
 		return -1;
 	} else {
+		fprintf(stderr,"  ");
 		checked = (int)input;
 		return checked;
 	}
@@ -103,6 +104,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 	memset(field, 0, FLDSIZE_X * FLDSIZE_Y * sizeof(char));
 	x = FLDSIZE_X / 2;
 	y = FLDSIZE_Y / 2;
+
+	fprintf(stderr,"!base16  ");
 
 	/* process raw key */
 	for (i = 0; i < dgst_raw_len; i+=2) {
@@ -185,7 +188,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 		*p++ = '-';
 	*p++ = '+';
 
-	fprintf(stderr,"\ninput is %s",dgst_raw);
+	fprintf(stderr,"input is %s",dgst_raw);
 	return retval;
 }
 
