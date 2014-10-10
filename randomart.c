@@ -146,6 +146,8 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 		}
 	}
 
+	fprintf(stderr,"\n");
+
 	/* mark starting point and end point*/
 	field[FLDSIZE_X / 2][FLDSIZE_Y / 2] = len - 1;
 	field[x][y] = len;
