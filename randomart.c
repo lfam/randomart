@@ -27,7 +27,7 @@
  *
  * The algorithm used here is a worm crawling over a discrete plane,
  * leaving a trace (augmenting the field) everywhere it goes.
- * Movement is taken from dgst_raw 2bit-wise.  Bumping into walls
+ * Movement is taken from userstr 2bit-wise.  Bumping into walls
  * makes the respective movement vector be ignored for this turn.
  * Graphs are not unambiguous, because circles in graphs can be
  * walked in either direction.
@@ -43,7 +43,7 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
-char *fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len);
+char *fingerprint_randomart(char *userstr, size_t userstr_len);
 
 int strtoul_wrapper(char *input);
 
@@ -82,7 +82,7 @@ strtoul_wrapper(char *pair_of_chars) {
 
 
 char * 
-fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
+fingerprint_randomart(char *userstr, size_t userstr_len) {
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
@@ -108,12 +108,12 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 	fprintf(stderr,"!base16  ");
 
 	/* process raw key */
-	for (i = 0; i < dgst_raw_len; i+=2) {
+	for (i = 0; i < userstr_len; i+=2) {
 
 		/* break off two characters (hex number) */
 		char	pair_of_chars[3];
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
-		memcpy(pair_of_chars, &dgst_raw[i], sizeof(pair_of_chars) - 1);
+		memcpy(pair_of_chars, &userstr[i], sizeof(pair_of_chars) - 1);
 		
 		int byte = strtoul_wrapper(pair_of_chars);
 		if (byte == -1) continue;
@@ -190,7 +190,7 @@ fingerprint_randomart(char *dgst_raw, size_t dgst_raw_len) {
 		*p++ = '-';
 	*p++ = '+';
 
-	fprintf(stderr,"input is %s",dgst_raw);
+	fprintf(stderr,"\ninput is %s",userstr);
 	return retval;
 }
 
