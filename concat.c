@@ -15,10 +15,15 @@ int main(int argc, char *argv[])
 	char *destination = malloc(9);
 	char *ptr = destination;
 
-	for (int i = 1; i < argc; i++) {
+	if ( argc < 2 ) exit(1);
+
+	int i;
+	for (i = 1; i < argc; i++) {
 		ptr = mempcpy (ptr, argv[i], strlen( argv[i] ));
 	}
 
 	puts(destination);
 	free(destination);	
+	free(ptr);
+	exit(0);
 }
