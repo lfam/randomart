@@ -43,8 +43,8 @@
 #define	FLDSIZE_Y	(FLDBASE + 1)
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
+/* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len);
-
 int strtoul_wrapper(char *input);
 
 int 
