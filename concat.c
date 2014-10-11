@@ -19,10 +19,10 @@ int main(int argc, char *argv[])
 
 	int i;
 	for (i = 1; i < argc; i++) {
-		ptr = mempcpy (ptr, argv[i], strlen( argv[i] ));
+		ptr = mempcpy( ptr, argv[i], strlen( argv[i] )) = '\0';
 	}
 
-	puts(destination);
+	printf("%s\n",destination);	
 	free(destination);	
 	free(ptr);
 	exit(0);
