@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 #include <errno.h>
 
@@ -45,13 +45,13 @@
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len);
-int strtoul_wrapper(char *input);
+int strtoul_wrapper(char *input, char *errstring);
 
 int 
-strtoul_wrapper(char *pair_of_chars) {
+strtoul_wrapper(char *pair_of_chars, static char *ptr) {
 	unsigned long 	input;
 	int	checked = 0;
-	char *end;
+	char	*end;
 
 	errno = 0;
 	input = strtoul(pair_of_chars,&end,16);
@@ -60,11 +60,12 @@ strtoul_wrapper(char *pair_of_chars) {
 * https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
 */
 	if (end == pair_of_chars) {
-		fprintf(stderr,"%s", 
-			pair_of_chars);
+		ptr = memcpy(ptr, end, strlen(end));
+		ptr += strlen(end);
 		return -1;
 	} else if ('\0' != *end) {
-		fprintf(stderr,"%s", pair_of_chars);
+		ptr = memcpy(ptr, end, strlen(end));
+		ptr += strlen(end);
 		return -1;
 	} else if ((ULONG_MAX == input) && ERANGE == errno) {
 		fprintf(stderr, "%s out of range of type unsigned long\n", pair_of_chars);
@@ -74,7 +75,7 @@ strtoul_wrapper(char *pair_of_chars) {
 		fprintf(stderr, "Not all input will be processed.\n");
 		return -1;
 	} else {
-		fprintf(stderr,"  ");
+		memset(ptr,0x20,strlen(end)); 
 		checked = (int)input;
 		return checked;
 	}
@@ -105,7 +106,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	x = FLDSIZE_X / 2;
 	y = FLDSIZE_Y / 2;
 
-	fprintf(stderr,"!base16  ");
+	char	*errstring = malloc(userstr_len);
+	char 	*ptr = errstring;
 
 	/* process raw key */
 	for (i = 0; i < userstr_len; i+=2) {
@@ -115,7 +117,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
 		memcpy(pair_of_chars, &userstr[i], sizeof(pair_of_chars) - 1);
 		
-		int byte = strtoul_wrapper(pair_of_chars);
+		int byte = strtoul_wrapper(pair_of_chars, ptr);
 		if (byte == -1) continue;
 
 		/*
@@ -146,7 +148,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		}
 	}
 
-	fprintf(stderr,"\n");
+	fprintf(stderr,"errstring is %s\n", errstring);
+
 
 	/* mark starting point and end point*/
 	field[FLDSIZE_X / 2][FLDSIZE_Y / 2] = len - 1;
