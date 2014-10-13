@@ -4,6 +4,7 @@
 
 void *mempcpy(void *dest, const void *src, size_t n);
 
+/* musl libc implementation of mempcpy */
 void *
 mempcpy(void *dest, const void *src, size_t n)
 {
