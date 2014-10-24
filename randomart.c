@@ -45,42 +45,6 @@
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len);
-int strtoul_wrapper(char *input, char *errstring);
-
-int 
-strtoul_wrapper(char *pair_of_chars, static char *ptr) {
-	unsigned long 	input;
-	int	checked = 0;
-	char	*end;
-
-	errno = 0;
-	input = strtoul(pair_of_chars,&end,16);
-
-/* adapted from
-* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
-*/
-	if (end == pair_of_chars) {
-		ptr = memcpy(ptr, end, strlen(end));
-		ptr += strlen(end);
-		return -1;
-	} else if ('\0' != *end) {
-		ptr = memcpy(ptr, end, strlen(end));
-		ptr += strlen(end);
-		return -1;
-	} else if ((ULONG_MAX == input) && ERANGE == errno) {
-		fprintf(stderr, "%s out of range of type unsigned long\n", pair_of_chars);
-		return -1;
-	} else if (input > UINT_MAX) {
-		fprintf(stderr, "%lu greater than UINT_MAX\n", input);
-		fprintf(stderr, "Not all input will be processed.\n");
-		return -1;
-	} else {
-		memset(ptr,0x20,strlen(end)); 
-		checked = (int)input;
-		return checked;
-	}
-}
-
 
 char * 
 fingerprint_randomart(char *userstr, size_t userstr_len) {
@@ -107,7 +71,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	y = FLDSIZE_Y / 2;
 
 	char	*errstring = malloc(userstr_len);
-	char 	*ptr = errstring;
+	char 	*errptr = errstring;
 
 	/* process raw key */
 	for (i = 0; i < userstr_len; i+=2) {
@@ -117,8 +81,43 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		memset(pair_of_chars, 0, sizeof(pair_of_chars));
 		memcpy(pair_of_chars, &userstr[i], sizeof(pair_of_chars) - 1);
 		
-		int byte = strtoul_wrapper(pair_of_chars, ptr);
+/*		int byte = strtoul_wrapper(pair_of_chars, errptr);
 		if (byte == -1) continue;
+*/
+	int	byte ;
+	unsigned long 	input;
+	char	*end;
+	input = strtoul(pair_of_chars,&end,16);
+
+/* adapted from
+* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
+*/
+	if (end == pair_of_chars) {
+		do {
+			*errptr = *end;
+			*errptr++;
+			*end++;
+		} while ( *end != '\0' ) ;
+		byte = -1;
+	} else if ('\0' != *end) {
+		do {
+			*errptr = *end;
+			*errptr++;
+			*end++;
+		} while ( *end != '\0' ) ;
+		byte = -1;
+	} else if (input > UINT_MAX) {
+		fprintf(stderr, "%lu greater than UINT_MAX\n", input);
+		fprintf(stderr, "Not all input will be processed.\n");
+		byte = -1;
+	} else {
+		memset(errptr,' ',strlen(end)); 
+		fprintf(stderr,"arting %lu for input %s\n",input, pair_of_chars);
+		byte = (int)input;
+	}
+		if ( byte == -1 ) {
+			continue ; 
+		}
 
 		/*
 		 * byte should be =< 255, i.e. it must fit in one byte.
@@ -148,7 +147,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		}
 	}
 
-	fprintf(stderr,"errstring is %s\n", errstring);
+	fprintf(stderr,"errstring is \'%s\'\n", errstring);
 
 
 	/* mark starting point and end point*/
