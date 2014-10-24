@@ -72,6 +72,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 
 	char	*errstring = malloc(userstr_len);
 	char 	*errptr = errstring;
+	int	strtoul_err = 0;
 
 	/* process raw key */
 	for (i = 0; i < userstr_len; i+=2) {
@@ -84,37 +85,39 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 /*		int byte = strtoul_wrapper(pair_of_chars, errptr);
 		if (byte == -1) continue;
 */
-	int	byte ;
-	unsigned long 	input;
-	char	*end;
-	input = strtoul(pair_of_chars,&end,16);
+		int	byte ;
+		unsigned long 	input;
+		char	*end;
+		input = strtoul(pair_of_chars,&end,16);
 
-/* adapted from
-* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
-*/
-	if (end == pair_of_chars) {
-		do {
-			*errptr = *end;
-			*errptr++;
-			*end++;
-		} while ( *end != '\0' ) ;
-		byte = -1;
-	} else if ('\0' != *end) {
-		do {
-			*errptr = *end;
-			*errptr++;
-			*end++;
-		} while ( *end != '\0' ) ;
-		byte = -1;
-	} else if (input > UINT_MAX) {
-		fprintf(stderr, "%lu greater than UINT_MAX\n", input);
-		fprintf(stderr, "Not all input will be processed.\n");
-		byte = -1;
-	} else {
-		memset(errptr,' ',strlen(end)); 
-		fprintf(stderr,"arting %lu for input %s\n",input, pair_of_chars);
-		byte = (int)input;
-	}
+	/* adapted from
+	* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
+	*/
+		if (end == pair_of_chars) {
+			do {
+				*errptr = *end;
+				*errptr++;
+				*end++;
+			} while ( *end != '\0' ) ;
+			strtoul_err = 1;
+			byte = -1;
+		} else if ('\0' != *end) {
+			do {
+				*errptr = *end;
+				*errptr++;
+				*end++;
+			} while ( *end != '\0' ) ;
+			strtoul_err = 1;
+			byte = -1;
+		} else if (input > UINT_MAX) {
+			fprintf(stderr, "%lu greater than UINT_MAX\n", input);
+			fprintf(stderr, "Not all input will be processed.\n");
+			byte = -1;
+		} else {
+			memset(errptr,' ',strlen(pair_of_chars)); 
+			byte = (int)input;
+		}
+
 		if ( byte == -1 ) {
 			continue ; 
 		}
@@ -147,8 +150,9 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		}
 	}
 
-	fprintf(stderr,"errstring is \'%s\'\n", errstring);
-
+	if (strtoul_err != 0) {
+		fprintf(stderr,"\'%s\' <-- unprocessed\n", errstring);
+	}
 
 	/* mark starting point and end point*/
 	field[FLDSIZE_X / 2][FLDSIZE_Y / 2] = len - 1;
@@ -192,7 +196,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		*p++ = '-';
 	*p++ = '+';
 
-	fprintf(stderr,"\ninput is %s",userstr);
+	fprintf(stderr,"\'%s\' <-- input\n",userstr);
 	return retval;
 }
 
@@ -212,8 +216,20 @@ main(void)
 			return 1;
 		} else if ((line)[line_len - 1] == '\n') {
 			rart_input_len = (size_t)line_len - 1;
+			fprintf(stderr, "newline found\n");
 		} else {
 			rart_input_len = (size_t)line_len;
+			fprintf(stderr, "newline NOT found\n");
+		}
+
+		fprintf(stdout, "%s <-- getline got this\n", line);
+		fflush(stdout);
+		
+		char	*lineptr = line;
+		for (int q = 0; q <= rart_input_len; q++) {
+			char	c = *lineptr;
+			fprintf( stderr, "%c\n", c );
+			lineptr++;
 		}
 
 		randomart = fingerprint_randomart(line,rart_input_len);
