@@ -198,7 +198,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		*p++ = '-';
 	*p++ = '+';
 
-	fputs ( userstr, stdout );
+	fputs(userstr, stdout);
 	return retval;
 }
 
