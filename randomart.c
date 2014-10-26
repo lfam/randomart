@@ -99,7 +99,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 				*errptr++;
 				*end++;
 			} while ( *end != '\0' ) ;
-			strtoul_err = 1;
 			byte = -1;
 		} else if ('\0' != *end) {
 			do {
@@ -107,7 +106,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 				*errptr++;
 				*end++;
 			} while ( *end != '\0' ) ;
-			strtoul_err = 1;
 			byte = -1;
 		} else if (input > UINT_MAX) {
 			fprintf(stderr, "%lu greater than UINT_MAX\n", input);
@@ -120,6 +118,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		}
 
 		if ( byte == -1 ) {
+			strtoul_err = 1 ;
 			continue ; 
 		}
 
