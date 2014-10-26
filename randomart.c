@@ -90,9 +90,9 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		char	*end;
 		input = strtoul(pair_of_chars,&end,16);
 
-	/* adapted from
-	* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
-	*/
+		/* adapted from
+		* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
+		*/
 		if (end == pair_of_chars) {
 			do {
 				*errptr = *end;
@@ -115,6 +115,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 			byte = -1;
 		} else {
 			memset(errptr,' ',strlen(pair_of_chars)); 
+			errptr += strlen(pair_of_chars);
 			byte = (int)input;
 		}
 
@@ -150,8 +151,9 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		}
 	}
 
-	if (strtoul_err != 0) {
-		fprintf(stderr,"\'%s\' <-- unprocessed\n", errstring);
+	if ( strtoul_err != 0 ) {
+		fputs(errstring, stderr);
+		fprintf(stderr, "<-- input characters failed processing\n");
 	}
 
 	/* mark starting point and end point*/
@@ -196,7 +198,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		*p++ = '-';
 	*p++ = '+';
 
-	fprintf(stderr,"\'%s\' <-- input\n",userstr);
+	fputs ( userstr, stdout );
 	return retval;
 }
 
@@ -204,41 +206,26 @@ int
 main(void)
 {
 	char	*line = 0;
-	size_t	line_buf_len=0;
+	size_t	line_buf_len = 0;
 	ssize_t	line_len;
-	size_t	rart_input_len;
 	char	*randomart = NULL;
 
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		if (line == NULL) {
-			fprintf(stderr,"null pointer dereference of line\n");
+			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
 		} else if ((line)[line_len - 1] == '\n') {
-			rart_input_len = (size_t)line_len - 1;
-			fprintf(stderr, "newline found\n");
+			randomart = fingerprint_randomart(line, (size_t)line_len - 1);
 		} else {
-			rart_input_len = (size_t)line_len;
-			fprintf(stderr, "newline NOT found\n");
+			randomart = fingerprint_randomart(line, (size_t)line_len);
 		}
-
-		fprintf(stdout, "%s <-- getline got this\n", line);
-		fflush(stdout);
-		
-		char	*lineptr = line;
-		for (int q = 0; q <= rart_input_len; q++) {
-			char	c = *lineptr;
-			fprintf( stderr, "%c\n", c );
-			lineptr++;
-		}
-
-		randomart = fingerprint_randomart(line,rart_input_len);
 
 		if (randomart == NULL) {
-			fprintf(stderr,"fingerprint_randomart() returned NULL for input %s\n", line);
+			fprintf (stderr,"fingerprint_randomart() returned NULL for input %s\n", line);
 			return 1;
 		} else {
-			memset(line,0,(size_t)line_len);
+			memset(line, 0, (size_t)line_len);
 			printf("%s\n",randomart);
 		}
 	}
