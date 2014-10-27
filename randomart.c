@@ -59,7 +59,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	size_t	i, tlen;
 	unsigned int	b;
 	int	x, y;
-/*	int	r; */
+//	int	r;
 	size_t	len = strlen(augmentation_string) - 1;
 	
 	if ((retval = calloc((FLDSIZE_X + 3), (FLDSIZE_Y + 2))) == NULL)
