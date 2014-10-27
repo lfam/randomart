@@ -2,11 +2,12 @@
 
 i=0
 limit=${1:-10}
+sha_alg=${2:-512}
 
 while test $i -lt $limit
 do
 	head -10 /dev/urandom \
-	| sha512sum \
+	| 'sha'"$sha_alg"'sum' \
 	| cut -f1 -d' '
 	i=$((i+1))
 done
