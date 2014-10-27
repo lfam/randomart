@@ -1,0 +1,2 @@
+./loop 3 512 | ./randomart 16
+works well
