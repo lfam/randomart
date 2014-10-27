@@ -78,56 +78,55 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	for (i = 0; i < userstr_len; i+=2) {
 
 		/* break off two characters (hex number) */
-		char	pair_of_chars[3];
-		memset(pair_of_chars, 0, sizeof(pair_of_chars));
-		memcpy(pair_of_chars, &userstr[i], sizeof(pair_of_chars) - 1);
+		char	num_as_str[3];
+		memset(num_as_str, 0, sizeof(num_as_str));
+		memcpy(num_as_str, &userstr[i], sizeof(num_as_str) - 1);
 		
-/*		int byte = strtoul_wrapper(pair_of_chars, errptr);
+/*		int byte = strtoul_wrapper(num_as_str, errptr);
 		if (byte == -1) continue;
 */
-		int	byte ;
+		/*
+		 * (unsigned long)input should be =< 255, i.e. it must fit in one byte.
+		 * This works here because the max value of 2 chars read as
+		 * base16 is 255, which is the max value of 8 bits.
+		 * This will need to change when we allow other radices.
+		 */
+		unsigned char	byte;
 		unsigned long 	input;
 		char	*end;
-		input = strtoul(pair_of_chars,&end,16);
+		input = strtoul(num_as_str,&end,16);
 
 		/* adapted from
 		* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
 		*/
-		if (end == pair_of_chars) {
+		if (end == num_as_str) {
 			do {
 				*errptr = *end;
 				*errptr++;
 				*end++;
 			} while ( *end != '\0' ) ;
-			byte = -1;
+			strtoul_err = 1 ;
 		} else if ('\0' != *end) {
 			do {
 				*errptr = *end;
 				*errptr++;
 				*end++;
 			} while ( *end != '\0' ) ;
-			byte = -1;
+			strtoul_err = 1 ;
 		} else if (input > UINT_MAX) {
 			fprintf(stderr, "%lu greater than UINT_MAX\n", input);
 			fprintf(stderr, "Not all input will be processed.\n");
-			byte = -1;
+			strtoul_err = 1 ;
 		} else {
-			memset(errptr,' ',strlen(pair_of_chars)); 
-			errptr += strlen(pair_of_chars);
-			byte = (int)input;
+			memset(errptr,' ',strlen(num_as_str)); 
+			errptr += strlen(num_as_str);
+			byte = (unsigned char)input;
 		}
 
-		if ( byte == -1 ) {
-			strtoul_err = 1 ;
+		if ( strtoul_err == 1 ) {
 			continue ; 
 		}
 
-		/*
-		 * byte should be =< 255, i.e. it must fit in one byte.
-		 * Only the first byte of each int is processed. 
-		 * this works here because the max value of 2 chars read as
-		 * base16 is 255, which is the max value of 8 bits
-		 */
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
