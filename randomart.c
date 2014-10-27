@@ -73,6 +73,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	char	*errstring;
 	if ((errstring = malloc(userstr_len)) == NULL)
 		return NULL;
+	memset(errstring, ' ', userstr_len);
+
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
 
@@ -120,7 +122,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 			fprintf(stderr, "Not all input will be processed.\n");
 			strtoul_err = 1 ;
 		} else {
-			memset(errptr,' ',strlen(num_as_str)); 
 			errptr += strlen(num_as_str);
 			byte = (unsigned char)input;
 		}
