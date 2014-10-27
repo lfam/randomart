@@ -1,0 +1,13 @@
+#!/bin/sh
+
+i=1
+limit=${1:-10}
+echo $limit
+
+while test $i -le $limit
+do
+	head -10 /dev/urandom \
+	| sha512sum \
+	| cut -f1 -d' '
+	i=$((i+1))
+done
