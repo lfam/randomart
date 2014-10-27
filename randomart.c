@@ -70,7 +70,9 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	x = FLDSIZE_X / 2;
 	y = FLDSIZE_Y / 2;
 
-	char	*errstring = malloc(userstr_len);
+	char	*errstring;
+	if ((errstring = malloc(userstr_len)) == NULL)
+		return NULL;
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
 
@@ -153,6 +155,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 		fputs(errstring, stderr);
 		fprintf(stderr, "<-- input characters failed processing\n");
 	}
+
+	free(errstring);
 
 	/* mark starting point and end point*/
 	field[FLDSIZE_X / 2][FLDSIZE_Y / 2] = len - 1;
