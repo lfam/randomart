@@ -204,7 +204,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 int 
 main(void)
 {
-	char	*line = 0;
+	char	*line = NULL;
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
 	char	*randomart = NULL;
