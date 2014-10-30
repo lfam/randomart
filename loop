@@ -7,7 +7,8 @@ n_bytes=$(expr "$n_bits" / 8)
 
 while test $i -lt $limit
 do
-	od -An -N$n_bytes -vtx1 /dev/urandom \
-	| tr -d ' '
+	od -An -vtx1 -N$n_bytes /dev/urandom \
+	| tr -d '\n '
+	printf "\n"
 	i=$((i+1))
 done
