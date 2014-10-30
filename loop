@@ -1,13 +1,13 @@
 #!/bin/sh
 
 i=0
-limit=${1:-10}
-sha_alg=${2:-512}
+limit=${1:-1}
+n_bits=${2:-128}
+n_bytes=$(expr "$n_bits" / 8)
 
 while test $i -lt $limit
 do
-	head -10 /dev/urandom \
-	| 'sha'"$sha_alg"'sum' \
-	| cut -f1 -d' '
+	od -An -N$n_bytes -vtx1 /dev/urandom \
+	| tr -d ' '
 	i=$((i+1))
 done
