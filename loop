@@ -1,11 +1,11 @@
 #!/bin/sh
 
-i=0
-limit=${1:-1}
-n_bits=${2:-128}
+n_bits=${1:-128}
 n_bytes=$(expr "$n_bits" / 8)
+lines=${2:-1}
 
-while test $i -lt $limit
+i=0
+while test $i -lt $lines
 do
 	od -An -vtx1 -N$n_bytes /dev/urandom \
 	| tr -d '\n '
