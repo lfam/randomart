@@ -112,6 +112,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 				*end++;
 			} while ( *end != '\0' ) ;
 			strtoul_err = 1 ;
+			continue;
 		} else if ('\0' != *end) {
 			do {
 				*errptr = *end;
@@ -119,19 +120,16 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 				*end++;
 			} while ( *end != '\0' ) ;
 			strtoul_err = 1 ;
+			continue;
 		} else if (input > UINT_MAX) {
 			fprintf(stderr, "%lu greater than UINT_MAX\n", input);
 			fprintf(stderr, "Not all input will be processed.\n");
 			strtoul_err = 1 ;
+			continue;
 		} else {
 			errptr += strlen(num_as_str);
 			byte = (unsigned char)input;
 		}
-
-		if ( strtoul_err == 1 ) {
-			continue ; 
-		}
-
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
