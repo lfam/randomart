@@ -44,10 +44,10 @@
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
 /* function prototypes */
-char *fingerprint_randomart(char *userstr, size_t userstr_len, int usr_fldbase);
+char *fingerprint_randomart(char *userstr, size_t userstr_len, unsigned int usr_fldbase);
 
 char * 
-fingerprint_randomart(char *userstr, size_t userstr_len, int usr_fldbase) {
+fingerprint_randomart(char *userstr, size_t userstr_len, unsigned int usr_fldbase) {
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
@@ -60,12 +60,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, int usr_fldbase) {
 	int	x, y;
 //	int	r;
 	size_t	len = strlen(augmentation_string) - 1;
-	int	fld_x, fld_y;
+	unsigned int	fld_x, fld_y;
 	int	i;
-
-	if (usr_fldbase == -1) {
-		usr_fldbase = 8;
-	} 
 
 	fld_y = usr_fldbase + 1;
 	fld_x = usr_fldbase * 2 + 1;
@@ -222,12 +218,12 @@ main(int argc, char **argv)
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
 	char	*randomart = NULL;
-	int	usr_fldbase;
+	unsigned int	usr_fldbase;
 
 	if (argc > 1) {
-		usr_fldbase = (int)strtoul(argv[1], NULL, 10);
+		usr_fldbase = (unsigned int)strtoul(argv[1], NULL, 10);
 	} else {
-		usr_fldbase = -1;
+		usr_fldbase = 8;
 	}
 
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
