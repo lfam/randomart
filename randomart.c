@@ -97,7 +97,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		 * base16 is 255, which is the max value of 8 bits.
 		 * This will need to change when we allow other radices.
 		 */
-		unsigned char	byte;
+		unsigned char	byte = '\0';
 		unsigned long 	input;
 		char	*end;
 		input = strtoul(num_as_str,&end,16);
