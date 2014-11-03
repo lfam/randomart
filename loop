@@ -1,13 +1,14 @@
 #!/bin/sh
 
-i=0
-limit=${1:-10}
-n_byte=${2:-16}
+n_bits=${1:-128}
+n_bytes=$(expr "$n_bits" / 8)
+lines=${2:-1}
 
-while test $i -lt $limit
+i=0
+while test $i -lt $lines
 do
-	dd if=/dev/urandom bs=1 count=$n_byte \
-	| od -An -vtx1 \
-	| tr -d '\ '
+	od -An -vtx1 -N$n_bytes /dev/urandom \
+	| tr -d '\n '
+	printf "\n"
 	i=$((i+1))
 done
