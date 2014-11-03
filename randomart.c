@@ -44,35 +44,43 @@
 #define	FLDSIZE_X	(FLDBASE * 2 + 1)
 
 /* function prototypes */
-char *fingerprint_randomart(char *userstr, size_t userstr_len);
+char *fingerprint_randomart(char *userstr, size_t userstr_len, unsigned int usr_fldbase);
 
 char * 
-fingerprint_randomart(char *userstr, size_t userstr_len) {
+fingerprint_randomart(char *userstr, size_t userstr_len, unsigned int usr_fldbase) {
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
 	 */
 	char	*augmentation_string = " .o+=*BOX@%&#/^SE";
 	char	*retval, *p;
-//	char	title[FLDSIZE_Y];
-	unsigned char	field[FLDSIZE_X][FLDSIZE_Y];
-	size_t	i, tlen;
+//	char	title[fld_y];
+	size_t	tlen;
 	unsigned int	b;
 	int	x, y;
 //	int	r;
 	size_t	len = strlen(augmentation_string) - 1;
+	unsigned int	fld_x, fld_y;
+	int	i;
+
+	fld_y = usr_fldbase + 1;
+	fld_x = usr_fldbase * 2 + 1;
+
+	unsigned char	field[fld_x][fld_y];
 	
-	if ((retval = calloc((FLDSIZE_X + 3), (FLDSIZE_Y + 2))) == NULL)
+	if ((retval = calloc((fld_x + 3), (fld_y + 2))) == NULL)
 		return NULL;
 
 	/* initialize field */
-	memset(field, 0, FLDSIZE_X * FLDSIZE_Y * sizeof(char));
-	x = FLDSIZE_X / 2;
-	y = FLDSIZE_Y / 2;
+	memset(field, 0, fld_x * fld_y * sizeof(char));
+	x = fld_x / 2;
+	y = fld_y / 2;
 
 	char	*errstring;
 	if ((errstring = malloc(userstr_len)) == NULL)
 		return NULL;
+	memset(errstring, ' ', userstr_len);
+
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
 
@@ -120,7 +128,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 			fprintf(stderr, "Not all input will be processed.\n");
 			strtoul_err = 1 ;
 		} else {
-			memset(errptr,' ',strlen(num_as_str)); 
 			errptr += strlen(num_as_str);
 			byte = (unsigned char)input;
 		}
@@ -141,8 +148,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 			/* assure we are still in bounds */
 			x = MAX(x, 0);
 			y = MAX(y, 0);
-			x = MIN(x, FLDSIZE_X - 1);
-			y = MIN(y, FLDSIZE_Y - 1);
+			x = MIN(x, fld_x - 1);
+			y = MIN(y, fld_y - 1);
 
 			/* augment the field */
 			if (field[x][y] < len - 2)
@@ -159,7 +166,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	free(errstring);
 
 	/* mark starting point and end point*/
-	field[FLDSIZE_X / 2][FLDSIZE_Y / 2] = len - 1;
+	field[fld_x / 2][fld_y / 2] = len - 1;
 	field[x][y] = len;
 
 	/* assemble title */
@@ -176,19 +183,19 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 	/* output upper border */
 	p = retval;
 	*p++ = '+';
-	for (i = 0; i < (FLDSIZE_X - tlen) / 2; i++)
+	for (i = 0; i < (fld_x - tlen) / 2; i++)
 		*p++ = '-';
 //	memcpy(p, title, tlen);
 	p += tlen;
-	for (i = p - retval - 1; i < FLDSIZE_X; i++)
+	for (i = p - retval - 1; i < fld_x; i++)
 		*p++ = '-';
 	*p++ = '+';
 	*p++ = '\n';
 
 	/* output content */
-	for (y = 0; y < FLDSIZE_Y; y++) {
+	for (y = 0; y < fld_y; y++) {
 		*p++ = '|';
-		for (x = 0; x < FLDSIZE_X; x++)
+		for (x = 0; x < fld_x; x++)
 			*p++ = augmentation_string[MIN(field[x][y], len)];
 		*p++ = '|';
 		*p++ = '\n';
@@ -196,7 +203,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 
 	/* output lower border */
 	*p++ = '+';
-	for (i = 0; i < FLDSIZE_X; i++)
+	for (i = 0; i < fld_x; i++)
 		*p++ = '-';
 	*p++ = '+';
 
@@ -205,12 +212,19 @@ fingerprint_randomart(char *userstr, size_t userstr_len) {
 }
 
 int 
-main(void)
+main(int argc, char **argv)
 {
 	char	*line = NULL;
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
 	char	*randomart = NULL;
+	unsigned int	usr_fldbase;
+
+	if (argc > 1) {
+		usr_fldbase = (unsigned int)strtoul(argv[1], NULL, 10);
+	} else {
+		usr_fldbase = 8;
+	}
 
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
@@ -218,9 +232,9 @@ main(void)
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
 		} else if ((line)[line_len - 1] == '\n') {
-			randomart = fingerprint_randomart(line, (size_t)line_len - 1);
+			randomart = fingerprint_randomart(line, (size_t)line_len - 1, usr_fldbase);
 		} else {
-			randomart = fingerprint_randomart(line, (size_t)line_len);
+			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		}
 
 		if (randomart == NULL) {
