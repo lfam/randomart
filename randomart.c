@@ -33,16 +33,6 @@
  * walked in either direction.
  */
 
-/*
- * Field sizes for the random art.  Have to be odd, so the starting point
- * can be in the exact middle of the picture, and FLDBASE should be >=8 .
- * Else pictures would be too dense, and drawing the frame would
- * fail, too, because the key type would not fit in anymore.
- */
-#define	FLDBASE		8
-#define	FLDSIZE_Y	(FLDBASE + 1)
-#define	FLDSIZE_X	(FLDBASE * 2 + 1)
-
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
 
@@ -56,13 +46,19 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	char	*retval, *p;
 //	char	title[fld_y];
 	size_t	tlen;
-	unsigned int	b;
-	int	x, y;
+	size_t	b;
+	size_t	x, y;
 //	int	r;
 	size_t	len = strlen(augmentation_string) - 1;
 	size_t fld_x, fld_y;
-	int	i;
+	size_t	i;
 
+	/*
+	* Field sizes for the random art.  Have to be odd, so the starting point
+	* can be in the exact middle of the picture, and FLDBASE should be >=8 .
+	* Else pictures would be too dense, and drawing the frame would
+	* fail, too, because the key type would not fit in anymore.
+	*/
 	fld_y = usr_fldbase + 1;
 	fld_x = usr_fldbase * 2 + 1;
 
