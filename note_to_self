@@ -1,0 +1,20 @@
+The extra newline at the end of errstring appears when the final strtoul
+iteration ends with:
+} else if ('\0' != *end) {
+
+Basically, we get that conditional when strlen(num_str) is odd (ignoring the
+null terminator). So, I think the newline is coming with the input line, from
+stdin.
+
+I thought I'd avoided this in main() by checking if the last character in the
+line was '\n' and decrementing the line_len. The line_len is returned by
+getline() and does not count the null terminator, according to man. But it seems
+this does not work.
+
+And do we want this "to work"? Or should we just show the failure caused by the
+malformed input? Don't read minds!
+
+Try:
+$ echo yo | ./randomart
+$ echo yoo | ./randomart
+$ echo yoo | tr -d '\n' | ./randomart
