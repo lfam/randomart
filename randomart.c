@@ -76,6 +76,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	if ((errstring = malloc(userstr_len)) == NULL)
 		return NULL;
 	memset(errstring, ' ', userstr_len);
+	errstring[userstr_len - 1] = '\0';
 
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
@@ -111,11 +112,12 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 			strtoul_err = 1 ;
 			continue;
 		} else if ('\0' != *end) {
-			do {
-				*errptr = *end;
+				*errptr = *num_as_str;
+				size_t idx = 0;
+				while (idx < strlen(num_as_str)) {
+				idx++;
 				*errptr++;
-				*end++;
-			} while ( *end != '\0' ) ;
+				}
 			strtoul_err = 1 ;
 			continue;
 		} else if (input > UINT_MAX) {
