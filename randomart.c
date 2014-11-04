@@ -76,7 +76,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	if ((errstring = malloc(userstr_len)) == NULL)
 		return NULL;
 	memset(errstring, ' ', userstr_len);
-	errstring[userstr_len - 1] = '\0';
+	errstring[userstr_len] = '\0';
 
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
@@ -109,15 +109,17 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 				*errptr++;
 				*end++;
 			} while ( *end != '\0' ) ;
+			fprintf(stderr, "end == num_as_str\n");
 			strtoul_err = 1 ;
 			continue;
 		} else if ('\0' != *end) {
-				*errptr = *num_as_str;
 				size_t idx = 0;
 				while (idx < strlen(num_as_str)) {
+				*errptr = num_as_str[idx];
 				idx++;
 				*errptr++;
 				}
+			fprintf(stderr, "null is not end\n");
 			strtoul_err = 1 ;
 			continue;
 		} else if (input > UINT_MAX) {
@@ -152,7 +154,11 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	}
 
 	if ( strtoul_err != 0 ) {
-		fputs(errstring, stderr);
+/*		if(errstring[userstr_len] == '\n') {
+			fprintf(stderr, "errstring ends with newline, replacing with null\n");
+			errstring[userstr_len] = '\0';
+		}
+*/		fputs(errstring, stderr);
 		fprintf(stderr, "<-- input characters failed processing\n");
 	}
 
@@ -224,9 +230,15 @@ main(int argc, char **argv)
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
+		/*
+		 * The next two conditional statements should be replaced when
+		 * we change from getline() to getdelim().
+		 */
 		} else if ((line)[line_len - 1] == '\n') {
+			fprintf(stderr, "found newline\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len - 1, usr_fldbase);
 		} else {
+			fprintf(stderr, "DID NOT find newline\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		}
 
