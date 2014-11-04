@@ -85,9 +85,9 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	for (i = 0; i < userstr_len; i+=2) {
 
 		/* break off two characters (hex number) */
-		char	num_as_str[3];
-		memset(num_as_str, 0, sizeof(num_as_str));
-		memcpy(num_as_str, &userstr[i], sizeof(num_as_str) - 1);
+		char	num_str[3];
+		memset(num_str, 0, sizeof(num_str));
+		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
 		
 		/*
 		 * (unsigned long)input should be =< 255, i.e. it must fit in one byte.
@@ -98,24 +98,24 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		unsigned char	byte = '\0';
 		unsigned long 	input;
 		char	*end;
-		input = strtoul(num_as_str,&end,16);
+		input = strtoul(num_str,&end,16);
 
 		/* adapted from
 		* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
 		*/
-		if (end == num_as_str) {
+		if (end == num_str) {
 			do {
 				*errptr = *end;
 				*errptr++;
 				*end++;
 			} while ( *end != '\0' ) ;
-			fprintf(stderr, "end == num_as_str\n");
+			fprintf(stderr, "end == num_str\n");
 			strtoul_err = 1 ;
 			continue;
 		} else if ('\0' != *end) {
 				size_t idx = 0;
-				while (idx < strlen(num_as_str)) {
-				*errptr = num_as_str[idx];
+				while (idx < strlen(num_str)) {
+				*errptr = num_str[idx];
 				idx++;
 				*errptr++;
 				}
@@ -128,7 +128,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 			strtoul_err = 1 ;
 			continue;
 		} else {
-			errptr += strlen(num_as_str);
+			errptr += strlen(num_str);
 			byte = (unsigned char)input;
 		}
 
