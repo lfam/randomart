@@ -1,3 +1,24 @@
+Okay, here's whats happening:
+randomart.c processes input two chars a time. With well-formed input, each two
+chars are converted to a hex byte, and the final, odd byte is the newline. (This
+works because getline() returns the length of the input minus the null
+terminator.) When we pass the input and (input_len - 1) to
+fingerprint_randomart, we never iterate over the character at input[input_len], so
+the newline is not processed. But if the input is malformed, and the newline is
+not in an odd position, it does get processed, and thus placed on *errstring.
+
+Well formed example input:
+'a', 'b', '\n', '\0'
+           ^
+           Not processed when reading two at a time for (len - 1) / 2
+
+Malformed example input:
+'a', 'b', 'a', '\n', '\0'
+                ^
+                Processed when reading two a time for (len - 1) / 2
+
+---- 
+
 The extra newline at the end of errstring appears when the final strtoul
 iteration ends with:
 } else if ('\0' != *end) {
