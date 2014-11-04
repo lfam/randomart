@@ -227,6 +227,7 @@ main(int argc, char **argv)
 
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
+		fprintf(stderr, "line_len is %zd\n", line_len);
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
