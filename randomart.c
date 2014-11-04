@@ -88,9 +88,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		memset(num_as_str, 0, sizeof(num_as_str));
 		memcpy(num_as_str, &userstr[i], sizeof(num_as_str) - 1);
 		
-/*		int byte = strtoul_wrapper(num_as_str, errptr);
-		if (byte == -1) continue;
-*/
 		/*
 		 * (unsigned long)input should be =< 255, i.e. it must fit in one byte.
 		 * This works here because the max value of 2 chars read as
