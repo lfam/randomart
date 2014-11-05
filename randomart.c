@@ -73,7 +73,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	y = fld_y / 2;
 
 	char	*errstring = 0;
-	fprintf(stderr, "userstr_len is %zd\n", userstr_len);
+//	fprintf(stderr, "userstr_len is %zd\n", userstr_len);
 	if ((errstring = malloc(userstr_len + 1)) == NULL)
 		return NULL;
 	errstring[userstr_len] = '\0';
@@ -84,7 +84,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 
 	/* process raw key */
 	for (i = 0; i < userstr_len; i+=2) {
-		fprintf(stderr, "i is %zd\n", i);
 
 		/* break off two characters (hex number) */
 		char	num_str[3];
@@ -220,6 +219,7 @@ main(int argc, char **argv)
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
 	size_t	usr_fldbase;
+	int	delim = 10; // ASCII for newline
 
 	if (argc > 1) {
 		usr_fldbase = (size_t)strtoul(argv[1], NULL, 10);
@@ -228,8 +228,8 @@ main(int argc, char **argv)
 	}
 
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
-	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
-		fprintf(stderr, "line_len is %zd\n", line_len);
+	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
+//		fprintf(stderr, "line_len is %zd\n", line_len);
 		char	*randomart = NULL;
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
@@ -238,11 +238,11 @@ main(int argc, char **argv)
 		 * The next two conditional statements should be replaced when
 		 * we change from getline() to getdelim().
 		 */
-		} else if ((line)[line_len - 1] == '\n') {
-			fprintf(stderr, "found newline\n");
+		} else if ((line)[line_len - 1] == delim) {
+			fprintf(stderr, "found input delimiter\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		} else {
-			fprintf(stderr, "DID NOT find newline\n");
+			fprintf(stderr, "DID NOT find input delimiter\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		}
 
