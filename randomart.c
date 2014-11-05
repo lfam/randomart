@@ -75,8 +75,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	char	*errstring = 0;
 	if ((errstring = malloc(userstr_len)) == NULL)
 		return NULL;
-	memset(errstring, ' ', userstr_len - 1);
-	errstring[userstr_len] = '\0';
+	memset(errstring, ' ', userstr_len);
+	errstring[userstr_len + 1] = '\0';
 
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
@@ -238,7 +238,7 @@ main(int argc, char **argv)
 		 */
 		} else if ((line)[line_len - 1] == '\n') {
 			fprintf(stderr, "found newline\n");
-			randomart = fingerprint_randomart(line, (size_t)line_len - 1, usr_fldbase);
+			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		} else {
 			fprintf(stderr, "DID NOT find newline\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
