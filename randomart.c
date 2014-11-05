@@ -72,10 +72,10 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	x = fld_x / 2;
 	y = fld_y / 2;
 
-	char	*errstring;
+	char	*errstring = 0;
 	if ((errstring = malloc(userstr_len)) == NULL)
 		return NULL;
-	memset(errstring, ' ', userstr_len);
+	memset(errstring, ' ', userstr_len - 1);
 	errstring[userstr_len] = '\0';
 
 	char 	*errptr = errstring;
@@ -158,7 +158,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 			fprintf(stderr, "errstring ends with newline, replacing with null\n");
 			errstring[userstr_len] = '\0';
 		}
-*/		fputs(errstring, stderr);
+*/
+		fputs(errstring, stderr);
 		fprintf(stderr, "<-- input characters failed processing\n");
 	}
 
