@@ -217,7 +217,6 @@ main(int argc, char **argv)
 	char	*line = NULL;
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
-	char	*randomart = NULL;
 	size_t	usr_fldbase;
 
 	if (argc > 1) {
@@ -229,6 +228,7 @@ main(int argc, char **argv)
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getline(&line, &line_buf_len, stdin)) > 0) {
 		fprintf(stderr, "line_len is %zd\n", line_len);
+		char	*randomart = NULL;
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
@@ -251,9 +251,9 @@ main(int argc, char **argv)
 			memset(line, 0, (size_t)line_len);
 			printf("%s\n",randomart);
 		}
+		free(randomart);
 	}
 
-	free(randomart);
 	free(line);
 
 	return 0;
