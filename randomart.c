@@ -73,16 +73,18 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	y = fld_y / 2;
 
 	char	*errstring = 0;
-	if ((errstring = malloc(userstr_len)) == NULL)
+	fprintf(stderr, "userstr_len is %zd\n", userstr_len);
+	if ((errstring = malloc(userstr_len + 1)) == NULL)
 		return NULL;
+	errstring[userstr_len] = '\0';
 	memset(errstring, ' ', userstr_len);
-	errstring[userstr_len + 1] = '\0';
 
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
 
 	/* process raw key */
 	for (i = 0; i < userstr_len; i+=2) {
+		fprintf(stderr, "i is %zd\n", i);
 
 		/* break off two characters (hex number) */
 		char	num_str[3];
