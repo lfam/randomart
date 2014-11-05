@@ -1,3 +1,7 @@
+segfault if only input is newline :(
+
+----
+
 Okay, here's whats happening:
 randomart.c processes input two chars a time. With well-formed input, each two
 chars are converted to a hex byte, and the final, odd byte is the newline. (This
