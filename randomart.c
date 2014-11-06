@@ -234,15 +234,11 @@ main(int argc, char **argv)
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
-		/*
-		 * The next two conditional statements should be replaced when
-		 * we change from getline() to getdelim().
-		 */
 		} else if ((line)[line_len - 1] == delim) {
 //			fprintf(stderr, "found input delimiter\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		} else {
-			fprintf(stderr, "DID NOT find input delimiter\n");
+//			fprintf(stderr, "DID NOT find input delimiter\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		}
 
