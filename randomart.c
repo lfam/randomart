@@ -110,7 +110,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 				*errptr++;
 				*end++;
 			} while ( *end != '\0' ) ;
-			fprintf(stderr, "end == num_str\n");
+//			fprintf(stderr, "end == num_str\n");
 			strtoul_err = 1 ;
 			continue;
 		} else if ('\0' != *end) {
@@ -120,7 +120,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 				idx++;
 				*errptr++;
 				}
-			fprintf(stderr, "null is not end\n");
+//			fprintf(stderr, "null is not end\n");
 			strtoul_err = 1 ;
 			continue;
 		} else if (input > UINT_MAX) {
@@ -239,7 +239,7 @@ main(int argc, char **argv)
 		 * we change from getline() to getdelim().
 		 */
 		} else if ((line)[line_len - 1] == delim) {
-			fprintf(stderr, "found input delimiter\n");
+//			fprintf(stderr, "found input delimiter\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		} else {
 			fprintf(stderr, "DID NOT find input delimiter\n");
