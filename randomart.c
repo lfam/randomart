@@ -240,7 +240,7 @@ main(int argc, char **argv)
 		 */
 		} else if ((line)[line_len - 1] == delim) {
 			fprintf(stderr, "found input delimiter\n");
-			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
+			randomart = fingerprint_randomart(line, (size_t)line_len - 1, usr_fldbase);
 		} else {
 			fprintf(stderr, "DID NOT find input delimiter\n");
 			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
