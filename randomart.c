@@ -72,12 +72,16 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	x = fld_x / 2;
 	y = fld_y / 2;
 
-	char	*errstring = 0;
-//	fprintf(stderr, "userstr_len is %zd\n", userstr_len);
+	char	*errstring = NULL;
+	fprintf(stderr, "userstr_len is %zd\n", userstr_len);
 	if ((errstring = malloc(userstr_len + 1)) == NULL)
 		return NULL;
+	memset(errstring, ' ', userstr_len + 1);
+	fprintf(stderr,
+		"after memsetting whitespaces, errstring is %zd long\n", strlen(errstring));
 	errstring[userstr_len] = '\0';
-	memset(errstring, ' ', userstr_len);
+	fprintf(stderr,
+		"after adding null terminator, errstring is %zd long\n", strlen(errstring));
 
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
@@ -89,6 +93,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		char	num_str[3];
 		memset(num_str, 0, sizeof(num_str));
 		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
+//		fprintf(stderr, "num_str is set to %s\n", num_str);
 		
 		/*
 		 * (unsigned long)input should be =< 255, i.e. it must fit in one byte.
@@ -100,28 +105,28 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		unsigned long 	input;
 		char	*end;
 		input = strtoul(num_str,&end,16);
+//		fprintf(stderr, "strtoul returned %zd\n", input);
 
 		/* adapted from
 		* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
 		*/
 		if (end == num_str) {
-			do {
-				*errptr = *end;
-				*errptr++;
-				*end++;
-			} while ( *end != '\0' ) ;
 //			fprintf(stderr, "end == num_str\n");
+			memcpy(errptr, num_str, strlen(num_str));
+			fprintf(stderr, "num_str: %s\n", num_str);
+			*errptr++;
+			*errptr++;
 			strtoul_err = 1 ;
+			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
 			continue;
 		} else if ('\0' != *end) {
-				size_t idx = 0;
-				while (idx < strlen(num_str)) {
-				*errptr = num_str[idx];
-				idx++;
-				*errptr++;
-				}
 //			fprintf(stderr, "null is not end\n");
+			memcpy(errptr, num_str, strlen(num_str));
+			fprintf(stderr, "num_str: %s\n", num_str);
+			*errptr++;
+			*errptr++;
 			strtoul_err = 1 ;
+			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
 			continue;
 		} else if (input > UINT_MAX) {
 			fprintf(stderr, "%lu greater than UINT_MAX\n", input);
@@ -155,11 +160,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	}
 
 	if ( strtoul_err != 0 ) {
-/*		if(errstring[userstr_len] == '\n') {
-			fprintf(stderr, "errstring ends with newline, replacing with null\n");
-			errstring[userstr_len] = '\0';
-		}
-*/
 		fputs(errstring, stderr);
 		fprintf(stderr, "<-- input characters failed processing\n");
 	}
@@ -208,7 +208,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		*p++ = '-';
 	*p++ = '+';
 
-	fputs(userstr, stdout);
+	puts(userstr);
 	return retval;
 }
 
@@ -229,17 +229,15 @@ main(int argc, char **argv)
 
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
-//		fprintf(stderr, "line_len is %zd\n", line_len);
+		fprintf(stderr, "line_len is %zd\n", line_len);
 		char	*randomart = NULL;
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
-		} else if ((line)[line_len - 1] == delim) {
-//			fprintf(stderr, "found input delimiter\n");
-			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
 		} else {
-//			fprintf(stderr, "DID NOT find input delimiter\n");
-			randomart = fingerprint_randomart(line, (size_t)line_len, usr_fldbase);
+			fprintf(stderr, "line at line_len is %c\n", line[line_len - 1]);
+			line[line_len - 1] = '\0';
+			randomart = fingerprint_randomart(line, (size_t)line_len - 1, usr_fldbase);
 		}
 
 		if (randomart == NULL) {
