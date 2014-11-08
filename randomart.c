@@ -93,6 +93,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		char	num_str[3];
 		memset(num_str, 0, sizeof(num_str));
 		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
+		size_t	i_errptr = 0;
 //		fprintf(stderr, "num_str is set to %s\n", num_str);
 		
 		/*
@@ -114,17 +115,15 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 //			fprintf(stderr, "end == num_str\n");
 			memcpy(errptr, num_str, strlen(num_str));
 //			fprintf(stderr, "num_str: %s\n", num_str);
-			*errptr++;
-			*errptr++;
+			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { *errptr++; }; 
 			strtoul_err = 1 ;
 //			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
 			continue;
 		} else if ('\0' != *end) {
 //			fprintf(stderr, "null is not end\n");
 			memcpy(errptr, num_str, strlen(num_str));
+			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { *errptr++; }; 
 //			fprintf(stderr, "num_str: %s\n", num_str);
-			*errptr++;
-			*errptr++;
 			strtoul_err = 1 ;
 //			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
 			continue;
