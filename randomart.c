@@ -200,7 +200,9 @@ main(int argc, char **argv)
 
 	if (argc > 1) {
 		if ((usr_fldbase = strtol(argv[1], NULL, 0)) <= 0) {
-			fprintf(stderr, "ERROR: field base must be > 0.\n");
+			fprintf(stderr,
+				"ERROR: field base must be a hex, octal or decimal number > 0.\n");
+			fprintf(stderr,"You entered '%s'.\n", argv[1]);
 			return 1; 
 		}
 	} else {
