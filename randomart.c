@@ -37,7 +37,8 @@
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
 
 char * 
-fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
+fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
+{
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
@@ -47,7 +48,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 //	char	title[fld_y];
 	size_t	tlen;
 	size_t	b;
-	size_t	x, y;
+	ssize_t	x, y;
 //	int	r;
 	size_t	len = strlen(augmentation_string) - 1;
 	size_t fld_x, fld_y;
@@ -64,7 +65,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 
 	unsigned char	field[fld_x][fld_y];
 	
-	if ((retval = calloc((fld_x + 3), (fld_y + 2))) == NULL)
+	if ((retval = calloc(((size_t)fld_x + 3), ((size_t)fld_y + 2))) == NULL)
 		return NULL;
 
 	/* initialize field */
@@ -217,11 +218,14 @@ main(int argc, char **argv)
 	char	*line = NULL;
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
-	size_t	usr_fldbase;
+	ssize_t	usr_fldbase;
 	int	delim = 10; // ASCII for newline
 
 	if (argc > 1) {
-		usr_fldbase = (size_t)strtoul(argv[1], NULL, 10);
+		if ((usr_fldbase = strtol(argv[1], NULL, 10)) < 0) {
+			fprintf(stderr, "Field base must be >= 0.\n");
+			return 1; 
+		}
 	} else {
 		usr_fldbase = 8;
 	}
@@ -233,10 +237,12 @@ main(int argc, char **argv)
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
+		} else if (line_len < 0) {
+			fprintf(stderr, "getdelim() returned -1\n");
 		} else {
 //			fprintf(stderr, "line at line_len is %c\n", line[line_len - 1]);
 			line[line_len - 1] = '\0';
-			randomart = fingerprint_randomart(line, (size_t)line_len - 1, usr_fldbase);
+			randomart = fingerprint_randomart(line, (size_t)line_len - 1, (size_t)usr_fldbase);
 		}
 
 		if (randomart == NULL) {
