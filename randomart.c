@@ -73,16 +73,16 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 	y = fld_y / 2;
 
 	char	*errstring = NULL;
-	fprintf(stderr, "userstr_len is %zd\n", userstr_len);
+//	fprintf(stderr, "userstr_len is %zd\n", userstr_len);
 	if ((errstring = malloc(userstr_len + 1)) == NULL)
 		return NULL;
 	memset(errstring, ' ', userstr_len + 1);
-	fprintf(stderr,
+/*	fprintf(stderr,
 		"after memsetting whitespaces, errstring is %zd long\n", strlen(errstring));
-	errstring[userstr_len] = '\0';
-	fprintf(stderr,
+*/	errstring[userstr_len] = '\0';
+/*	fprintf(stderr,
 		"after adding null terminator, errstring is %zd long\n", strlen(errstring));
-
+*/
 	char 	*errptr = errstring;
 	int	strtoul_err = 0;
 
@@ -113,20 +113,20 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase) {
 		if (end == num_str) {
 //			fprintf(stderr, "end == num_str\n");
 			memcpy(errptr, num_str, strlen(num_str));
-			fprintf(stderr, "num_str: %s\n", num_str);
+//			fprintf(stderr, "num_str: %s\n", num_str);
 			*errptr++;
 			*errptr++;
 			strtoul_err = 1 ;
-			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
+//			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
 			continue;
 		} else if ('\0' != *end) {
 //			fprintf(stderr, "null is not end\n");
 			memcpy(errptr, num_str, strlen(num_str));
-			fprintf(stderr, "num_str: %s\n", num_str);
+//			fprintf(stderr, "num_str: %s\n", num_str);
 			*errptr++;
 			*errptr++;
 			strtoul_err = 1 ;
-			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
+//			fprintf(stderr, "errstring is %zd\n", strlen(errstring));
 			continue;
 		} else if (input > UINT_MAX) {
 			fprintf(stderr, "%lu greater than UINT_MAX\n", input);
@@ -229,13 +229,13 @@ main(int argc, char **argv)
 
 	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
-		fprintf(stderr, "line_len is %zd\n", line_len);
+//		fprintf(stderr, "line_len is %zd\n", line_len);
 		char	*randomart = NULL;
 		if (line == NULL) {
 			fprintf ( stderr,"null pointer dereference of line\n" );
 			return 1;
 		} else {
-			fprintf(stderr, "line at line_len is %c\n", line[line_len - 1]);
+//			fprintf(stderr, "line at line_len is %c\n", line[line_len - 1]);
 			line[line_len - 1] = '\0';
 			randomart = fingerprint_randomart(line, (size_t)line_len - 1, usr_fldbase);
 		}
