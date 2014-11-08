@@ -62,9 +62,10 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 
 	unsigned char	field[fld_x][fld_y];
 	
-	if ((retval = calloc(((size_t)fld_x + 3), ((size_t)fld_y + 2))) == NULL)
+	if ((retval = calloc(((size_t)fld_x + 3), ((size_t)fld_y + 2))) == NULL) {
 		fprintf(stderr, "ERROR: failed to allocate array.\n");
 		return NULL;
+	}
 
 	/* initialize field */
 	memset(field, 0, fld_x * fld_y * sizeof(char));
@@ -73,9 +74,10 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 
 	/* set up error reporting for strtoul() on user's input */
 	char	*errstring = NULL;
-	if ((errstring = malloc(userstr_len + 1)) == NULL)
+	if ((errstring = malloc(userstr_len + 1)) == NULL) {
 		fprintf(stderr, "ERROR: failed to allocate memory.\n");
 		return NULL;
+	}
 	memset(errstring, ' ', userstr_len + 1);
 	errstring[userstr_len] = '\0';
 	char 	*errptr = errstring;
