@@ -45,11 +45,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	 */
 	char	*augmentation_string = " .o+=*BOX@%&#/^SE";
 	char	*retval, *p;
-//	char	title[fld_y];
-	size_t	tlen;
 	size_t	b;
 	ssize_t	x, y;
-//	int	r;
 	size_t	len = strlen(augmentation_string) - 1;
 	size_t fld_x, fld_y;
 	size_t	i;
@@ -170,24 +167,11 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	field[fld_x / 2][fld_y / 2] = len - 1;
 	field[x][y] = len;
 
-	/* assemble title */
-/*	r = snprintf(title, sizeof(title), "[%s %u]",
-		sshkey_type(k), sshkey_size(k));
-*/	/* If [type size] won't fit, then try [type]; fits "[ED25519-CERT]" */
-/*	if (r < 0 || r > (int)sizeof(title))
-		snprintf(title, sizeof(title), "[%s]", sshkey_type(k));
-	tlen = strlen(title);
-*/
-	/* tlen is defined here to fix a compiler warning */
-	tlen = 0;
-
 	/* output upper border */
 	p = retval;
 	*p++ = '+';
-	for (i = 0; i < (fld_x - tlen) / 2; i++)
+	for (i = 0; i < fld_x / 2; i++)
 		*p++ = '-';
-//	memcpy(p, title, tlen);
-	p += tlen;
 	for (i = p - retval - 1; i < fld_x; i++)
 		*p++ = '-';
 	*p++ = '+';
