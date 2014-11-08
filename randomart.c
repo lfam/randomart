@@ -199,8 +199,8 @@ main(int argc, char **argv)
 	ssize_t	usr_fldbase;
 
 	if (argc > 1) {
-		if ((usr_fldbase = strtol(argv[1], NULL, 10)) < 0) {
-			fprintf(stderr, "ERROR: field base must be >= 0.\n");
+		if ((usr_fldbase = strtol(argv[1], NULL, 0)) <= 0) {
+			fprintf(stderr, "ERROR: field base must be > 0.\n");
 			return 1; 
 		}
 	} else {
