@@ -112,12 +112,12 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		*/
 		if (end == num_str) {
 			memcpy(errptr, num_str, strlen(num_str));
-			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { *errptr++; }; 
+			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { errptr++; }; 
 			strtoul_err = error = 1 ;
 			continue;
 		} else if ('\0' != *end) {
 			memcpy(errptr, num_str, strlen(num_str));
-			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { *errptr++; }; 
+			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { errptr++; }; 
 			strtoul_err = error = 1 ;
 			continue;
 		} else if (input > UINT_MAX) {
@@ -141,8 +141,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 			/* assure we are still in bounds */
 			x = MAX(x, 0);
 			y = MAX(y, 0);
-			x = MIN(x, fld_x - 1);
-			y = MIN(y, fld_y - 1);
+			x = MIN(x, (ssize_t)fld_x - 1);
+			y = MIN(y, (ssize_t)fld_y - 1);
 
 			/* augment the field */
 			if (field[x][y] < len - 2)
@@ -173,9 +173,9 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	*p++ = '\n';
 
 	/* output content */
-	for (y = 0; y < fld_y; y++) {
+	for (y = 0; y < (ssize_t)fld_y; y++) {
 		*p++ = '|';
-		for (x = 0; x < fld_x; x++)
+		for (x = 0; x < (ssize_t)fld_x; x++)
 			*p++ = augmentation_string[MIN(field[x][y], len)];
 		*p++ = '|';
 		*p++ = '\n';
