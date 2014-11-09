@@ -97,7 +97,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		
 		unsigned char	byte = '\0';
 		char	*end;
-		unsigned long input = strtoul(num_str,&end,16);
+		unsigned long input = strtoul(num_str, &end, 16);
 
 		if (end == num_str) {
 			memcpy(errptr, num_str, sizeof(num_str) - 1);
