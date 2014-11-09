@@ -60,8 +60,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	* Else pictures would be too dense, and drawing the frame would
 	* fail, too, because the key type would not fit in anymore.
 	*/
-	fld_y = usr_fldbase + 1;
 	fld_x = usr_fldbase * 2 + 1;
+	fld_y = usr_fldbase + 1;
 
 	unsigned char	field[fld_x][fld_y];
 	
@@ -84,7 +84,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	memset(errstring, ' ', userstr_len + 1);
 	errstring[userstr_len] = '\0';
 	char 	*errptr = errstring;
-	/* error flag */
+	/* error flag for strtoul conversion */
 	int	strtoul_err = 0;
 
 	/* process user's input */
@@ -112,13 +112,15 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		*/
 		if (end == num_str) {
 			memcpy(errptr, num_str, strlen(num_str));
-			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { errptr++; }; 
-			strtoul_err = error = 1 ;
+			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++)
+				errptr++; 
+			strtoul_err = error = 1;
 			continue;
 		} else if ('\0' != *end) {
 			memcpy(errptr, num_str, strlen(num_str));
-			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { errptr++; }; 
-			strtoul_err = error = 1 ;
+			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) 
+				errptr++;
+			strtoul_err = error = 1;
 			continue;
 		} else if (input > UINT_MAX) {
 			fprintf(stderr, "ERROR: %lu greater than UINT_MAX\n", input);
