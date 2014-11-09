@@ -33,6 +33,9 @@
  * walked in either direction.
  */
 
+/* global variables */
+static int error = 0;
+
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
 
@@ -110,17 +113,17 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		if (end == num_str) {
 			memcpy(errptr, num_str, strlen(num_str));
 			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { *errptr++; }; 
-			strtoul_err = 1 ;
+			strtoul_err = error = 1 ;
 			continue;
 		} else if ('\0' != *end) {
 			memcpy(errptr, num_str, strlen(num_str));
 			for (i_errptr = 0; i_errptr < strlen(num_str); i_errptr++) { *errptr++; }; 
-			strtoul_err = 1 ;
+			strtoul_err = error = 1 ;
 			continue;
 		} else if (input > UINT_MAX) {
 			fprintf(stderr, "ERROR: %lu greater than UINT_MAX\n", input);
 			fprintf(stderr, "Not all input will be processed.\n");
-			strtoul_err = 1 ;
+			strtoul_err = error = 1 ;
 			continue;
 		} else {
 			errptr += strlen(num_str);
@@ -234,5 +237,8 @@ main(int argc, char **argv)
 
 	free(line);
 
-	return 0;
+	if (error == 1)
+		return 1;
+	else
+		return 0;
 }
