@@ -102,19 +102,19 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		 */
 		unsigned char	byte = '\0';
 		char	*end;
-		unsigned long input = strtoul(num_str,&end,16);
+		unsigned long input = strtoul(num_str, &end, 16);
 
 		/* adapted from
 		* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
 		*/
 		if (end == num_str) {
-			memcpy(errptr, num_str, strlen(num_str));
-			errptr += strlen(num_str);
+			memcpy(errptr, num_str, sizeof(num_str) - 1);
+			errptr += sizeof(num_str) - 1;
 			strtoul_err = error = 1;
 			continue;
 		} else if ('\0' != *end) {
-			memcpy(errptr, num_str, strlen(num_str));
-			errptr += strlen(num_str);
+			memcpy(errptr, num_str, sizeof(num_str) - 1);
+			errptr += sizeof(num_str) - 1;
 			strtoul_err = error = 1;
 			continue;
 		} else if (input > UINT_MAX) {
@@ -123,7 +123,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 			strtoul_err = error = 1 ;
 			continue;
 		} else {
-			errptr += strlen(num_str);
+			errptr += sizeof(num_str) - 1;
 			byte = (unsigned char)input;
 		}
 
