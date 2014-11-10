@@ -95,26 +95,18 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		memset(num_str, 0, sizeof(num_str));
 		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
 		
-		/* (unsigned long)input should be =< 255, i.e. it must fit in one byte.
-		 * This works here because the max value of 2 chars read as
-		 * base16 is 255, which is the max value of 8 bits.
-		 * This will need to change when we allow other radices.
-		 */
 		unsigned char	byte = '\0';
 		char	*end;
 		unsigned long input = strtoul(num_str,&end,16);
 
-		/* adapted from
-		* https://www.securecoding.cert.org/confluence/display/seccode/INT06-C.+Use+strtol%28%29+or+a+related+function+to+convert+a+string+token+to+an+integer
-		*/
 		if (end == num_str) {
-			memcpy(errptr, num_str, strlen(num_str));
-			errptr += strlen(num_str);
+			memcpy(errptr, num_str, sizeof(num_str));
+			errptr += sizeof(num_str);
 			strtoul_err = error = 1;
 			continue;
 		} else if ('\0' != *end) {
-			memcpy(errptr, num_str, strlen(num_str));
-			errptr += strlen(num_str);
+			memcpy(errptr, num_str, sizeof(num_str));
+			errptr += sizeof(num_str);
 			strtoul_err = error = 1;
 			continue;
 		} else if (input > UINT_MAX) {
@@ -123,7 +115,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 			strtoul_err = error = 1 ;
 			continue;
 		} else {
-			errptr += strlen(num_str);
+			errptr += sizeof(num_str);
 			byte = (unsigned char)input;
 		}
 
