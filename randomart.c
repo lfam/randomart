@@ -100,13 +100,13 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		unsigned long input = strtoul(num_str,&end,16);
 
 		if (end == num_str) {
-			memcpy(errptr, num_str, sizeof(num_str));
-			errptr += sizeof(num_str);
+			memcpy(errptr, num_str, sizeof(num_str) - 1);
+			errptr += sizeof(num_str) - 1;
 			strtoul_err = error = 1;
 			continue;
 		} else if ('\0' != *end) {
-			memcpy(errptr, num_str, sizeof(num_str));
-			errptr += sizeof(num_str);
+			memcpy(errptr, num_str, sizeof(num_str) - 1);
+			errptr += sizeof(num_str) - 1;
 			strtoul_err = error = 1;
 			continue;
 		} else if (input > UINT_MAX) {
@@ -115,7 +115,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 			strtoul_err = error = 1 ;
 			continue;
 		} else {
-			errptr += sizeof(num_str);
+			errptr += sizeof(num_str) - 1;
 			byte = (unsigned char)input;
 		}
 
