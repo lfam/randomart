@@ -225,9 +225,5 @@ main(int argc, char **argv)
 	}
 
 	free(line);
-
-	if (error == 1)
-		return 1;
-	else
-		return 0;
+	return error;
 }
