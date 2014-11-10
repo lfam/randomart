@@ -38,6 +38,51 @@ static int error = 0;
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
+long strtol_wrapper(char **errptr, char *num_str, int *strtol_err);
+
+/* functions */
+long
+strtol_wrapper(char **errptr, char *num_str, int *strtol_err) 
+{
+	size_t	num_str_len = strlen(num_str);
+	char	*end;
+	long hex_byte = strtol(num_str,&end,16);
+
+	if (end == num_str) {
+		memcpy(*errptr, num_str, num_str_len);
+		*errptr += num_str_len;
+		*strtol_err = 1;
+		error = 1;
+		return -1;
+	} else if ('\0' != *end) {
+		memcpy(*errptr, num_str, num_str_len);
+		*errptr += num_str_len;
+		*strtol_err = 1;
+		error = 1;
+		return -1;
+	} else if ((LONG_MIN == hex_byte || LONG_MAX == hex_byte) && ERANGE == errno) {
+		fprintf(stderr, "%s out of range of type long\n", num_str);
+		fprintf(stderr, "Not all input will be processed.\n");
+		*strtol_err = 1;
+		error = 1 ;
+		return -1;
+	} else if (hex_byte > INT_MAX) {
+		fprintf(stderr, "%ld greater than INT_MAX\n", hex_byte);
+		fprintf(stderr, "Not all input will be processed.\n");
+		*strtol_err = 1;
+		error = 1 ;
+		return -1;
+	} else if (hex_byte < INT_MIN) {
+		fprintf(stderr, "%ld less than INT_MIN\n", hex_byte);
+		fprintf(stderr, "Not all input will be processed.\n");
+		*strtol_err = 1;
+		error = 1 ;
+		return -1;
+	} else {
+		*errptr += num_str_len;
+		return hex_byte;
+	}
+}
 
 char * 
 fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
@@ -75,7 +120,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	x = fld_x / 2;
 	y = fld_y / 2;
 
-	/* set up error reporting for strtoul() on user's input */
+	/* set up error reporting for strtol() on user's input */
 	char	*errstring = NULL;
 	if ((errstring = malloc(userstr_len + 1)) == NULL) {
 		fprintf(stderr, "ERROR: failed to allocate memory.\n");
@@ -84,8 +129,13 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	memset(errstring, ' ', userstr_len + 1);
 	errstring[userstr_len] = '\0';
 	char 	*errptr = errstring;
-	/* error flag for strtoul conversion */
-	int	strtoul_err = 0;
+
+	/* error flag for strtol conversion */
+	int	*strtol_err = 0;
+	if ((strtol_err = malloc(sizeof(int))) == NULL ) {
+		fprintf(stderr, "ERROR: failed to allocate memory.\n");
+		return NULL;
+	}
 
 	/* process user's input */
 	for (i = 0; i < userstr_len; i+=2) {
@@ -95,29 +145,15 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		memset(num_str, 0, sizeof(num_str));
 		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
 		
-		unsigned char	byte = '\0';
-		char	*end;
-		unsigned long input = strtoul(num_str, &end, 16);
-
-		if (end == num_str) {
-			memcpy(errptr, num_str, sizeof(num_str) - 1);
-			errptr += sizeof(num_str) - 1;
-			strtoul_err = error = 1;
-			continue;
-		} else if ('\0' != *end) {
-			memcpy(errptr, num_str, sizeof(num_str) - 1);
-			errptr += sizeof(num_str) - 1;
-			strtoul_err = error = 1;
-			continue;
-		} else if (input > UINT_MAX) {
-			fprintf(stderr, "ERROR: %lu greater than UINT_MAX\n", input);
-			fprintf(stderr, "Not all input will be processed.\n");
-			strtoul_err = error = 1 ;
+/* unsigned char strtol_wrapper(char *errstring, char *num_str, int strtol_err); */
+		unsigned char	byte = NULL;
+		long		strtol_ret = NULL;
+		if ((strtol_ret = strtol_wrapper(&errptr, num_str, strtol_err)) == -1 ) {
 			continue;
 		} else {
-			errptr += sizeof(num_str) - 1;
-			byte = (unsigned char)input;
+			byte = (unsigned char)strtol_ret;
 		}
+
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
@@ -140,11 +176,12 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		}
 	}
 
-	if ( strtoul_err != 0 ) {
+	if ( strtol_err != 0 ) {
 		fputs(errstring, stderr);
 		fprintf(stderr, "<-- ERROR: not hexadecimal\n");
 	}
 
+	free(strtol_err);
 	free(errstring);
 
 	/* mark starting point and end point*/
