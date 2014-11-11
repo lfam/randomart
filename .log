@@ -1,0 +1,10 @@
+Mon,10 Nov 2014 10:38:34 -0500
+Currently, we process the user's input string two characters at a time, using
+strtoul() to convert the character pairs to an unsigned long int. Then, we cast
+to an unsigned char before handing over to the movement algorithm. This only
+works because we are expecting the input to be hexadecimal. The maximum value of
+2 characters of hex is 255, which is also the max value of unsigned char, aka
+one byte.
+
+This will need to change if we allow radices besides 16.
+
