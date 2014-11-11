@@ -1,3 +1,9 @@
+Tue,11 Nov 2014 00:54:33 -0500
+Use isspace on errstring rather than asking strtol_wrapper() to use strtol_err.
+
+Also, don't memset errstring to whitespace when it's allocated. Add the
+whitespace in strtol_wrapper() as necessary.
+
 Mon,10 Nov 2014 10:38:34 -0500
 Currently, we process the user's input string two characters at a time, using
 strtoul() to convert the character pairs to an unsigned long int. Then, we cast
