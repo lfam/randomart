@@ -44,19 +44,19 @@ long strtol_wrapper(char **errptr, char *num_str, int *strtol_err);
 long
 strtol_wrapper(char **errptr, char *num_str, int *strtol_err) 
 {
-	size_t	num_str_len = strlen(num_str);
+	size_t	num_strlen = strlen(num_str);
 	char	*end;
 	long hex_byte = strtol(num_str,&end,16);
 
 	if (end == num_str) {
-		memcpy(*errptr, num_str, num_str_len);
-		*errptr += num_str_len;
+		memcpy(*errptr, num_str, num_strlen);
+		*errptr += num_strlen;
 		*strtol_err = 1;
 		error = 1;
 		return -1;
 	} else if ('\0' != *end) {
-		memcpy(*errptr, num_str, num_str_len);
-		*errptr += num_str_len;
+		memcpy(*errptr, num_str, num_strlen);
+		*errptr += num_strlen;
 		*strtol_err = 1;
 		error = 1;
 		return -1;
@@ -79,7 +79,8 @@ strtol_wrapper(char **errptr, char *num_str, int *strtol_err)
 		error = 1 ;
 		return -1;
 	} else {
-		*errptr += num_str_len;
+		memset(errptr, ' ', num_strlen);
+		*errptr += num_strlen;
 		return hex_byte;
 	}
 }
@@ -126,7 +127,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		fprintf(stderr, "ERROR: failed to allocate memory.\n");
 		return NULL;
 	}
-	memset(errstring, ' ', userstr_len + 1);
 	errstring[userstr_len] = '\0';
 	char 	*errptr = errstring;
 
@@ -146,8 +146,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
 		
 /* unsigned char strtol_wrapper(char *errstring, char *num_str, int strtol_err); */
-		unsigned char	byte = NULL;
-		long		strtol_ret = NULL;
+		unsigned char	byte = '\0';
+		long		strtol_ret = 0;
 		if ((strtol_ret = strtol_wrapper(&errptr, num_str, strtol_err)) == -1 ) {
 			continue;
 		} else {
