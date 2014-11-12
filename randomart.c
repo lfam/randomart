@@ -79,7 +79,7 @@ strtol_wrapper(char **errptr, char *num_str, int *strtol_err)
 		error = 1 ;
 		return -1;
 	} else {
-		memset(errptr, ' ', num_strlen);
+		memset(*errptr, ' ', num_strlen);
 		*errptr += num_strlen;
 		return hex_byte;
 	}
