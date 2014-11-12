@@ -3,6 +3,7 @@
 #include <string.h>
 #include <limits.h>
 #include <errno.h>
+#include <ctype.h>
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -38,11 +39,26 @@ static int error = 0;
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
-long strtol_wrapper(char **errptr, char *num_str, int *strtol_err);
+long strtol_wrapper(char **errptr, char *num_str);
+int is_whitespace(const char *s);
 
 /* functions */
+/* is_whitespace() adapted from:
+   http://stackoverflow.com/a/3981593
+*/
+int
+is_whitespace(const char *s)
+{
+	while (*s != '\0') {
+		if (!isspace(*s))
+			return 0;
+			s++;
+	}
+	return 1;
+}
+
 long
-strtol_wrapper(char **errptr, char *num_str, int *strtol_err) 
+strtol_wrapper(char **errptr, char *num_str) 
 {
 	size_t	num_strlen = strlen(num_str);
 	char	*end;
@@ -51,31 +67,26 @@ strtol_wrapper(char **errptr, char *num_str, int *strtol_err)
 	if (end == num_str) {
 		memcpy(*errptr, num_str, num_strlen);
 		*errptr += num_strlen;
-		*strtol_err = 1;
 		error = 1;
 		return -1;
 	} else if ('\0' != *end) {
 		memcpy(*errptr, num_str, num_strlen);
 		*errptr += num_strlen;
-		*strtol_err = 1;
 		error = 1;
 		return -1;
 	} else if ((LONG_MIN == hex_byte || LONG_MAX == hex_byte) && ERANGE == errno) {
 		fprintf(stderr, "%s out of range of type long\n", num_str);
 		fprintf(stderr, "Not all input will be processed.\n");
-		*strtol_err = 1;
 		error = 1 ;
 		return -1;
 	} else if (hex_byte > INT_MAX) {
 		fprintf(stderr, "%ld greater than INT_MAX\n", hex_byte);
 		fprintf(stderr, "Not all input will be processed.\n");
-		*strtol_err = 1;
 		error = 1 ;
 		return -1;
 	} else if (hex_byte < INT_MIN) {
 		fprintf(stderr, "%ld less than INT_MIN\n", hex_byte);
 		fprintf(stderr, "Not all input will be processed.\n");
-		*strtol_err = 1;
 		error = 1 ;
 		return -1;
 	} else {
@@ -130,13 +141,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	errstring[userstr_len] = '\0';
 	char 	*errptr = errstring;
 
-	/* error flag for strtol conversion */
-	int	*strtol_err = 0;
-	if ((strtol_err = malloc(sizeof(int))) == NULL ) {
-		fprintf(stderr, "ERROR: failed to allocate memory.\n");
-		return NULL;
-	}
-
 	/* process user's input */
 	for (i = 0; i < userstr_len; i+=2) {
 
@@ -145,10 +149,9 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		memset(num_str, 0, sizeof(num_str));
 		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
 		
-/* unsigned char strtol_wrapper(char *errstring, char *num_str, int strtol_err); */
 		unsigned char	byte = '\0';
 		long		strtol_ret = 0;
-		if ((strtol_ret = strtol_wrapper(&errptr, num_str, strtol_err)) == -1 ) {
+		if ((strtol_ret = strtol_wrapper(&errptr, num_str)) == -1 ) {
 			continue;
 		} else {
 			byte = (unsigned char)strtol_ret;
@@ -176,12 +179,10 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		}
 	}
 
-	if ( strtol_err != 0 ) {
+	if ( !is_whitespace(errstring)) {
 		fputs(errstring, stderr);
 		fprintf(stderr, "<-- ERROR: not hexadecimal\n");
 	}
-
-	free(strtol_err);
 	free(errstring);
 
 	/* mark starting point and end point*/
