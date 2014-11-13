@@ -39,7 +39,7 @@ static int error = 0;
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
-long strtol_wrapper(char **errptr, char *num_str);
+long strtol_wrapper(char *num_str, char **errptr);
 int is_whitespace(const char *s);
 
 /* functions */
@@ -58,7 +58,7 @@ is_whitespace(const char *s)
 }
 
 long
-strtol_wrapper(char **errptr, char *num_str) 
+strtol_wrapper(char *num_str, char **errptr) 
 {
 	size_t	num_strlen = strlen(num_str);
 	char	*end;
@@ -151,7 +151,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		
 		unsigned char	byte = '\0';
 		long		strtol_ret = 0;
-		if ((strtol_ret = strtol_wrapper(&errptr, num_str)) == -1 ) {
+		if ((strtol_ret = strtol_wrapper(num_str, &errptr)) == -1 ) {
 			continue;
 		} else {
 			byte = (unsigned char)strtol_ret;
