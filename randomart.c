@@ -10,6 +10,12 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 
+/* Error codes:
+ * 0	okay
+ * 1	failure
+ * 2	not all input characters could be processed
+ */
+
 /*
  * Draw an ASCII-Art representing the fingerprint so human brain can
  * profit from its built-in pattern recognition ability.
@@ -61,38 +67,17 @@ long
 strtol_wrapper(char *num_str, char **errptr) 
 {
 	size_t	num_strlen = strlen(num_str);
-	char	*end;
-	long 	hex_byte = strtol(num_str,&end,16);
+	char	*end = NULL;
+	long 	ret = strtol(num_str,&end,16);
 
-	if (end == num_str) {
+	if ('\0' != *end) {
 		memcpy(*errptr, num_str, num_strlen);
 		*errptr += num_strlen;
-		error = 1;
-		return -1;
-	} else if ('\0' != *end) {
-		memcpy(*errptr, num_str, num_strlen);
-		*errptr += num_strlen;
-		error = 1;
-		return -1;
-	} else if ((LONG_MIN == hex_byte || LONG_MAX == hex_byte) && ERANGE == errno) {
-		fprintf(stderr, "%s out of range of type long\n", num_str);
-		fprintf(stderr, "Not all input will be processed.\n");
-		error = 1 ;
-		return -1;
-	} else if (hex_byte > INT_MAX) {
-		fprintf(stderr, "%ld greater than INT_MAX\n", hex_byte);
-		fprintf(stderr, "Not all input will be processed.\n");
-		error = 1 ;
-		return -1;
-	} else if (hex_byte < INT_MIN) {
-		fprintf(stderr, "%ld less than INT_MIN\n", hex_byte);
-		fprintf(stderr, "Not all input will be processed.\n");
-		error = 1 ;
 		return -1;
 	} else {
 		memset(*errptr, ' ', num_strlen);
 		*errptr += num_strlen;
-		return hex_byte;
+		return ret;
 	}
 }
 
@@ -151,7 +136,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		
 		unsigned char	byte = '\0';
 		long		strtol_ret = 0;
-		if ((strtol_ret = strtol_wrapper(num_str, &errptr)) == -1 ) {
+		if ((strtol_ret = strtol_wrapper(num_str, &errptr)) < 0 ) {
+			error = 2;
 			continue;
 		} else {
 			byte = (unsigned char)strtol_ret;
