@@ -62,7 +62,7 @@ strtol_wrapper(char **errptr, char *num_str)
 {
 	size_t	num_strlen = strlen(num_str);
 	char	*end;
-	long hex_byte = strtol(num_str,&end,16);
+	long 	hex_byte = strtol(num_str,&end,16);
 
 	if (end == num_str) {
 		memcpy(*errptr, num_str, num_strlen);
@@ -160,8 +160,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
-
-
 			/* evaluate 2 bit, rest is shifted later */
 			x += (byte & 0x1) ? 1 : -1;
 			y += (byte & 0x2) ? 1 : -1;
