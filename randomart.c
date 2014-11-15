@@ -79,7 +79,7 @@ strtol_wrapper(char *num_str, char **errptr, int base)
 		fprintf(stderr, "%s out of range of type long\n", num_str);
 		return -1;
 	} else if (errno != 0) {
-		fprintf(stderr, "strol error!\n");
+		fprintf(stderr, "strtol error!\n");
 		return -1;
 	} else if ( '\0' != *end ) {
 		if (errptr != NULL) {
