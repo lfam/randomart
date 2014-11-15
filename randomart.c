@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -210,20 +211,29 @@ main(int argc, char **argv)
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
 	int	delim = 10; // ASCII for newline
-	ssize_t	usr_fldbase;
+	ssize_t	usr_fldbase = 8;
+	int	c;
 
-	if (argc > 1) {
-		if ((usr_fldbase = strtol(argv[1], NULL, 0)) <= 0) {
-			fprintf(stderr,
-				"ERROR: field base must be a hex, octal or decimal number > 0.\n");
-			fprintf(stderr,"You entered '%s'.\n", argv[1]);
-			return 1; 
+	while ((c = getopt(argc, argv, "d:y:")) != -1)
+		switch (c) {
+		case 'd':
+			if (strlen(optarg) > 1) {
+				fprintf(stderr,
+				"WARNING: delimiter must be one character long.\n");
+			}
+			delim = (int)*optarg;
+			break;
+		case 'y':
+			if ((usr_fldbase = strtol(optarg, NULL, 0)) <= 0) {
+				fprintf(stderr,
+				"ERROR: field base must be a hex, octal, or decimal number > 0.\n");
+				return 1;
+			}
+			break;
+		default:
+			break;
 		}
-	} else {
-		usr_fldbase = 8;
-	}
 
-	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		char	*randomart = NULL;
 		if (line == NULL) {
