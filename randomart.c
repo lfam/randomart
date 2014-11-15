@@ -239,9 +239,12 @@ main(int argc, char **argv)
 			break;
 		case 'y':
 			if ((usr_fldbase = strtol_wrapper(optarg, NULL, 0)) <= 0) {
-//			if ((usr_fldbase = strtol(optarg, NULL, 0)) <= 0) {
 				fprintf(stderr,
-				"ERROR: field base must be a hex, octal, or decimal number > 0.\n");
+				"ERROR: field base must be a hex, octal, or decimal number > 0 and < 128.\n");
+				return 1;
+			} else if (usr_fldbase >= 128) {
+				fprintf(stderr,
+				"ERROR: field base must be a hex, octal, or decimal number > 0 and < 128.\n");
 				return 1;
 			}
 			break;
