@@ -4,11 +4,18 @@
 #include <limits.h>
 #include <errno.h>
 #include <ctype.h>
+#include <unistd.h>
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
+
+/* Error codes:
+ * 0	okay
+ * 1	failure
+ * 2	not all input characters could be processed
+ */
 
 /*
  * Draw an ASCII-Art representing the fingerprint so human brain can
@@ -39,7 +46,7 @@ static int error = 0;
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
-long strtol_wrapper(char **errptr, char *num_str);
+long strtol_wrapper(char *num_str, char **errptr, int base);
 int is_whitespace(const char *s);
 
 /* functions */
@@ -57,42 +64,35 @@ is_whitespace(const char *s)
 	return 1;
 }
 
-long
-strtol_wrapper(char **errptr, char *num_str) 
+/*
+ * adapted from:
+ * http://rus.har.mn/blog/2014-05-19/strtol-error-checking/
+ */
+long 
+strtol_wrapper(char *num_str, char **errptr, int base)
 {
 	size_t	num_strlen = strlen(num_str);
-	char	*end;
-	long hex_byte = strtol(num_str,&end,16);
-
-	if (end == num_str) {
-		memcpy(*errptr, num_str, num_strlen);
-		*errptr += num_strlen;
-		error = 1;
-		return -1;
-	} else if ('\0' != *end) {
-		memcpy(*errptr, num_str, num_strlen);
-		*errptr += num_strlen;
-		error = 1;
-		return -1;
-	} else if ((LONG_MIN == hex_byte || LONG_MAX == hex_byte) && ERANGE == errno) {
+	char	*end = NULL;
+	errno 	= 0;
+	long	ret = strtol(num_str, &end, base);
+	if ((LONG_MIN == ret || LONG_MAX == ret) && ERANGE == errno) {
 		fprintf(stderr, "%s out of range of type long\n", num_str);
-		fprintf(stderr, "Not all input will be processed.\n");
-		error = 1 ;
 		return -1;
-	} else if (hex_byte > INT_MAX) {
-		fprintf(stderr, "%ld greater than INT_MAX\n", hex_byte);
-		fprintf(stderr, "Not all input will be processed.\n");
-		error = 1 ;
+	} else if (errno != 0) {
+		fprintf(stderr, "strol error!\n");
 		return -1;
-	} else if (hex_byte < INT_MIN) {
-		fprintf(stderr, "%ld less than INT_MIN\n", hex_byte);
-		fprintf(stderr, "Not all input will be processed.\n");
-		error = 1 ;
+	} else if ( '\0' != *end ) {
+		if (errptr != 0) {
+		memcpy(*errptr, num_str, num_strlen);
+		*errptr += num_strlen;
+		}
 		return -1;
 	} else {
+		if (errptr != 0) {
 		memset(*errptr, ' ', num_strlen);
 		*errptr += num_strlen;
-		return hex_byte;
+		}
+		return ret;
 	}
 }
 
@@ -151,7 +151,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		
 		unsigned char	byte = '\0';
 		long		strtol_ret = 0;
-		if ((strtol_ret = strtol_wrapper(&errptr, num_str)) == -1 ) {
+		if ((strtol_ret = strtol_wrapper(num_str, &errptr, 16)) < 0 ) {
+			error = 2;
 			continue;
 		} else {
 			byte = (unsigned char)strtol_ret;
@@ -160,8 +161,6 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
-
-
 			/* evaluate 2 bit, rest is shifted later */
 			x += (byte & 0x1) ? 1 : -1;
 			y += (byte & 0x2) ? 1 : -1;
@@ -226,20 +225,30 @@ main(int argc, char **argv)
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
 	int	delim = 10; // ASCII for newline
-	ssize_t	usr_fldbase;
+	ssize_t	usr_fldbase = 8;
+	int	c;
 
-	if (argc > 1) {
-		if ((usr_fldbase = strtol(argv[1], NULL, 0)) <= 0) {
-			fprintf(stderr,
-				"ERROR: field base must be a hex, octal or decimal number > 0.\n");
-			fprintf(stderr,"You entered '%s'.\n", argv[1]);
-			return 1; 
+	while ((c = getopt(argc, argv, "d:y:")) != -1)
+		switch (c) {
+		case 'd':
+			if (strlen(optarg) > 1) {
+				fprintf(stderr,
+				"WARNING: delimiter must be one character long.\n");
+			}
+			delim = (int)*optarg;
+			break;
+		case 'y':
+			if ((usr_fldbase = strtol_wrapper(optarg, NULL, 0)) <= 0) {
+//			if ((usr_fldbase = strtol(optarg, NULL, 0)) <= 0) {
+				fprintf(stderr,
+				"ERROR: field base must be a hex, octal, or decimal number > 0.\n");
+				return 1;
+			}
+			break;
+		default:
+			break;
 		}
-	} else {
-		usr_fldbase = 8;
-	}
 
-	/* cribbed from http://www.pixelbeat.org/programming/readline/getline.c */
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		char	*randomart = NULL;
 		if (line == NULL) {
