@@ -46,7 +46,7 @@ static int error = 0;
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
-long strtol_wrapper(char *num_str, char **errptr);
+long strtol_wrapper(char *num_str, char **errptr, int base);
 int is_whitespace(const char *s);
 
 /* functions */
@@ -64,20 +64,34 @@ is_whitespace(const char *s)
 	return 1;
 }
 
-long
-strtol_wrapper(char *num_str, char **errptr) 
+/*
+ * adapted from:
+ * http://rus.har.mn/blog/2014-05-19/strtol-error-checking/
+ */
+long 
+strtol_wrapper(char *num_str, char **errptr, int base)
 {
 	size_t	num_strlen = strlen(num_str);
 	char	*end = NULL;
-	long 	ret = strtol(num_str,&end,16);
-
-	if ('\0' != *end) {
+	errno 	= 0;
+	long	ret = strtol(num_str, &end, base);
+	if ((LONG_MIN == ret || LONG_MAX == ret) && ERANGE == errno) {
+		fprintf(stderr, "%s out of range of type long\n", num_str);
+		return -1;
+	} else if (errno != 0) {
+		fprintf(stderr, "strol error!\n");
+		return -1;
+	} else if ( '\0' != *end ) {
+		if (errptr != 0) {
 		memcpy(*errptr, num_str, num_strlen);
 		*errptr += num_strlen;
+		}
 		return -1;
 	} else {
+		if (errptr != 0) {
 		memset(*errptr, ' ', num_strlen);
 		*errptr += num_strlen;
+		}
 		return ret;
 	}
 }
@@ -137,7 +151,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		
 		unsigned char	byte = '\0';
 		long		strtol_ret = 0;
-		if ((strtol_ret = strtol_wrapper(num_str, &errptr)) < 0 ) {
+		if ((strtol_ret = strtol_wrapper(num_str, &errptr, 16)) < 0 ) {
 			error = 2;
 			continue;
 		} else {
@@ -224,7 +238,8 @@ main(int argc, char **argv)
 			delim = (int)*optarg;
 			break;
 		case 'y':
-			if ((usr_fldbase = strtol(optarg, NULL, 0)) <= 0) {
+			if ((usr_fldbase = strtol_wrapper(optarg, NULL, 0)) <= 0) {
+//			if ((usr_fldbase = strtol(optarg, NULL, 0)) <= 0) {
 				fprintf(stderr,
 				"ERROR: field base must be a hex, octal, or decimal number > 0.\n");
 				return 1;
