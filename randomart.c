@@ -82,13 +82,13 @@ strtol_wrapper(char *num_str, char **errptr, int base)
 		fprintf(stderr, "strol error!\n");
 		return -1;
 	} else if ( '\0' != *end ) {
-		if (errptr != 0) {
+		if (errptr != NULL) {
 		memcpy(*errptr, num_str, num_strlen);
 		*errptr += num_strlen;
 		}
 		return -1;
 	} else {
-		if (errptr != 0) {
+		if (errptr != NULL) {
 		memset(*errptr, ' ', num_strlen);
 		*errptr += num_strlen;
 		}
