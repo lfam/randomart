@@ -57,9 +57,8 @@ int
 is_whitespace(const char *s)
 {
 	while (*s != '\0') {
-		if (!isspace(*s))
-			return 0;
-			s++;
+		if (!isspace(*s)) return 0;
+		s++;
 	}
 	return 1;
 }
@@ -67,6 +66,9 @@ is_whitespace(const char *s)
 /*
  * adapted from:
  * http://rus.har.mn/blog/2014-05-19/strtol-error-checking/
+ *
+ * Check the strtol conversion for errors, and optionally put the
+ * error-generating input in a char* for the user to do something with.
  */
 long 
 strtol_wrapper(char *num_str, char **errptr, int base)
@@ -76,8 +78,12 @@ strtol_wrapper(char *num_str, char **errptr, int base)
 	errno 	= 0;
 	long	ret = strtol(num_str, &end, base);
 	if ((LONG_MIN == ret || LONG_MAX == ret) && ERANGE == errno) {
-		fprintf(stderr, "%s out of range of type long\n", num_str);
+		fprintf(stderr, "ERROR: %s out of range of type long\n", num_str);
 		return -1;
+	/*
+	 * TODO: some platforms (Darwin...) set errno != 0 outside of POSIX spec. This
+	 * function must be fixed to deal with that.
+	 */
 	} else if (errno != 0) {
 		fprintf(stderr, "strtol error!\n");
 		return -1;
@@ -87,13 +93,12 @@ strtol_wrapper(char *num_str, char **errptr, int base)
 		*errptr += num_strlen;
 		}
 		return -1;
-	} else {
-		if (errptr != NULL) {
+	}
+	if (errptr != NULL) {
 		memset(*errptr, ' ', num_strlen);
 		*errptr += num_strlen;
-		}
-		return ret;
 	}
+	return ret;
 }
 
 char * 
@@ -154,10 +159,8 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		if ((strtol_ret = strtol_wrapper(num_str, &errptr, 16)) < 0 ) {
 			error = 2;
 			continue;
-		} else {
-			byte = (unsigned char)strtol_ret;
 		}
-
+		byte = (unsigned char)strtol_ret;
 
 		/* each byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
@@ -238,18 +241,14 @@ main(int argc, char **argv)
 			delim = (int)*optarg;
 			break;
 		case 'y':
-			if ((usr_fldbase = strtol_wrapper(optarg, NULL, 0)) <= 0) {
+			usr_fldbase = strtol_wrapper(optarg, NULL, 0);
+			if ((usr_fldbase < 1) || (usr_fldbase > 127)) {
 				fprintf(stderr,
-				"ERROR: field base must be a hex, octal, or decimal number > 0 and < 128.\n");
-				return 1;
-			} else if (usr_fldbase >= 128) {
-				fprintf(stderr,
-				"ERROR: field base must be a hex, octal, or decimal number > 0 and < 128.\n");
+				"ERROR: field base must be a hex, octal, or decimal integer > 0 and < 128.\n");
 				return 1;
 			}
 			break;
-		default:
-			break;
+		default: break;
 		}
 
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
@@ -259,18 +258,16 @@ main(int argc, char **argv)
 			return 1;
 		} else if (line_len < 0) {
 			fprintf(stderr, "ERROR: getdelim() returned -1\n");
-		} else {
-			line[line_len - 1] = '\0';
-			randomart = fingerprint_randomart(line, (size_t)line_len - 1, (size_t)usr_fldbase);
 		}
 
-		if (randomart == NULL) {
+		line[line_len - 1] = '\0';
+		if ((randomart = fingerprint_randomart(line, (size_t)line_len - 1, (size_t)usr_fldbase)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
 			return 1;
-		} else {
-			memset(line, 0, (size_t)line_len);
-			printf("%s\n",randomart);
 		}
+		memset(line, 0, (size_t)line_len);
+		printf("%s\n",randomart);
+
 		free(randomart);
 	}
 
