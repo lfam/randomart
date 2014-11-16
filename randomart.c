@@ -124,6 +124,10 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	*/
 	fld_x = usr_fldbase * 2 + 1;
 	fld_y = usr_fldbase + 1;
+	if ((usr_fldbase & 1) == 1) {
+		fld_x -= 2;
+		fld_y--;
+	}
 
 	unsigned char	field[fld_x][fld_y];
 	
