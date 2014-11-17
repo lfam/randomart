@@ -258,7 +258,6 @@ main(int argc, char **argv)
 		}
 
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
-		char	*randomart = NULL;
 		if (line == NULL) {
 			fprintf ( stderr,"ERROR: null pointer dereference of line\n" );
 			return 1;
@@ -267,6 +266,7 @@ main(int argc, char **argv)
 		}
 
 		line[line_len - 1] = '\0';
+		char	*randomart = NULL;
 		if ((randomart = fingerprint_randomart(line, (size_t)line_len - 1, (size_t)usr_fldbase)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
 			return 1;
