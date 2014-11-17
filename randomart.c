@@ -78,14 +78,14 @@ strtol_wrapper(char *num_str, char **errptr, int base)
 	errno 	= 0;
 	long	ret = strtol(num_str, &end, base);
 	if ((LONG_MIN == ret || LONG_MAX == ret) && ERANGE == errno) {
-		fprintf(stderr, "ERROR: %s out of range of type long\n", num_str);
+		fprintf(stderr, "ERROR: strtol() failed on input %s: %s\n", num_str, strerror(errno));
 		return -1;
 	/*
 	 * TODO: some platforms (Darwin...) set errno != 0 outside of POSIX spec. This
 	 * function must be fixed to deal with that.
 	 */
 	} else if (errno != 0) {
-		fprintf(stderr, "strtol error!\n");
+		perror("ERROR: strtol()");
 		return -1;
 	} else if ( '\0' != *end ) {
 		if (errptr != NULL) {
@@ -132,7 +132,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	unsigned char	field[fld_x][fld_y];
 	
 	if ((retval = calloc(((size_t)fld_x + 3), ((size_t)fld_y + 2))) == NULL) {
-		fprintf(stderr, "ERROR: failed to allocate array.\n");
+		perror("ERROR: calloc()");
 		return NULL;
 	}
 
@@ -144,7 +144,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	/* set up error reporting for strtol() on user's input */
 	char	*errstring = NULL;
 	if ((errstring = malloc(userstr_len + 1)) == NULL) {
-		fprintf(stderr, "ERROR: failed to allocate memory.\n");
+		perror("ERROR: malloc()");
 		return NULL;
 	}
 	errstring[userstr_len] = '\0';
@@ -258,11 +258,12 @@ main(int argc, char **argv)
 		}
 
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
-		if (line == NULL) {
-			fprintf ( stderr,"ERROR: null pointer dereference of line\n" );
+		if (line_len < 0) {
+			perror("ERROR: getdelim()");
 			return 1;
-		} else if (line_len < 0) {
-			fprintf(stderr, "ERROR: getdelim() returned -1\n");
+		} else if (line == NULL) {
+			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
+			return 1;
 		}
 
 		line[line_len - 1] = '\0';
