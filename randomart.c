@@ -46,7 +46,7 @@ static int error = 0;
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
-long strtol_wrapper(char *num_str, char **errptr, int base);
+long strtol_wrapper(char *str, char **errptr, int radix);
 int is_whitespace(const char *s);
 
 /* functions */
@@ -71,12 +71,12 @@ is_whitespace(const char *s)
  * error-generating input in a char* for the user to do something with.
  */
 long 
-strtol_wrapper(char *num_str, char **errptr, int base)
+strtol_wrapper(char *num_str, char **errptr, int radix)
 {
 	size_t	num_strlen = strlen(num_str);
 	char	*end = NULL;
 	errno 	= 0;
-	long	ret = strtol(num_str, &end, base);
+	long	ret = strtol(num_str, &end, radix);
 	if ((LONG_MIN == ret || LONG_MAX == ret) && ERANGE == errno) {
 		fprintf(stderr, "ERROR: strtol() failed on input %s: %s\n", num_str, strerror(errno));
 		return -1;
@@ -240,7 +240,7 @@ main(int argc, char **argv)
 		case 'd':
 			if (strlen(optarg) > 1) {
 				fprintf(stderr,
-				"WARNING: delimiter must be one character long.\n");
+				"WARNING: only first character of delimiter will be used.\n");
 			}
 			delim = (int)*optarg;
 			break;
@@ -254,7 +254,6 @@ main(int argc, char **argv)
 			break;
 		default:
 			return 1;
-			break;
 		}
 
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
