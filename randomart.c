@@ -252,7 +252,9 @@ main(int argc, char **argv)
 				return 1;
 			}
 			break;
-		default: break;
+		default:
+			return 1;
+			break;
 		}
 
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
