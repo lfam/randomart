@@ -84,8 +84,18 @@ strtol_wrapper(char *num_str, char **errptr, int radix)
 	 * TODO: some platforms (Darwin...) set errno != 0 outside of POSIX spec. This
 	 * function must be fixed to deal with that.
 	 */
+	} else if (EINVAL == errno) {
+		if (errptr != NULL) {
+		memcpy(*errptr, num_str, num_strlen);
+		*errptr += num_strlen;
+		}
+		return -1;
 	} else if (errno != 0) {
-		perror("ERROR: strtol()");
+		perror("ERROR strtol()");
+		if (errptr != NULL) {
+		memcpy(*errptr, num_str, num_strlen);
+		*errptr += num_strlen;
+		}
 		return -1;
 	} else if ( '\0' != *end ) {
 		if (errptr != NULL) {
@@ -132,7 +142,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	unsigned char	field[fld_x][fld_y];
 	
 	if ((retval = calloc(((size_t)fld_x + 3), ((size_t)fld_y + 2))) == NULL) {
-		perror("ERROR: calloc()");
+		perror("ERROR calloc()");
 		return NULL;
 	}
 
@@ -144,7 +154,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	/* set up error reporting for strtol() on user's input */
 	char	*errstring = NULL;
 	if ((errstring = malloc(userstr_len + 1)) == NULL) {
-		perror("ERROR: malloc()");
+		perror("ERROR malloc()");
 		return NULL;
 	}
 	errstring[userstr_len] = '\0';
@@ -258,7 +268,7 @@ main(int argc, char **argv)
 
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		if (line_len < 0) {
-			perror("ERROR: getdelim()");
+			perror("ERROR getdelim()");
 			return 1;
 		} else if (line == NULL) {
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
