@@ -81,8 +81,7 @@ strtol_wrapper(char *num_str, char **errptr, int radix)
 		fprintf(stderr, "ERROR: strtol() failed on input %s: %s\n", num_str, strerror(errno));
 		return -1;
 	/*
-	 * TODO: some platforms (Darwin...) set errno != 0 outside of POSIX spec. This
-	 * function must be fixed to deal with that.
+	 * TODO: some platforms (Darwin...) set errno != 0 outside of POSIX spec.
 	 */
 	} else if (EINVAL == errno) {
 		if (errptr != NULL) {
