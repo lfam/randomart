@@ -46,8 +46,28 @@ static int error = 0;
 
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
-long strtol_wrapper(char *str, char **errptr, int radix);
 int is_whitespace(const char *s);
+int shuck(const char *str, long *val, int radix, char **errptr);
+
+int
+shuck(const char *str, long *val, int radix, char **errptr)
+{
+	char *end;
+	int ret = 1;
+
+	int saved = errno;
+	errno = 0;
+	*val = strtol(str, &end, radix);
+
+	if (*end != '\0' || end == str ||
+		(((long)val == LONG_MIN || (long)val == LONG_MAX)
+		&& errno == ERANGE)) {
+		if (errptr != NULL ) memcpy(*errptr, str, strlen(str));
+		ret = 0;
+	}
+	if (errno == 0) errno = saved;
+	return ret;
+}
 
 /* functions */
 /* is_whitespace() adapted from:
@@ -61,39 +81,6 @@ is_whitespace(const char *s)
 		s++;
 	}
 	return 1;
-}
-
-/*
- * adapted from:
- * http://rus.har.mn/blog/2014-05-19/strtol-error-checking/
- *
- * Check the strtol conversion for errors, and optionally put the
- * error-generating input in a char* for the user to do something with.
- */
-long 
-strtol_wrapper(char *str, char **errptr, int radix)
-{
-	size_t	len = strlen(str);
-	char	*leftover = NULL;
-
-	errno 	= 0;
-	long	ret = strtol(str, &leftover, radix);
-
-	if ((LONG_MIN == ret || LONG_MAX == ret) && ERANGE == errno) {
-		fprintf(stderr, "ERROR: strtol() failed on input %s: %s\n", str, strerror(errno));
-		return -1;
-	} else if ((EINVAL == errno) || ( '\0' != *leftover )) {
-		if (errptr != NULL) {
-		memcpy(*errptr, str, len);
-		*errptr += len;
-		}
-		return -1;
-		}
-	if (errptr != NULL) {
-		memset(*errptr, ' ', len);
-		*errptr += len;
-	}
-	return ret;
 }
 
 char * 
@@ -142,6 +129,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		perror("ERROR malloc()");
 		return NULL;
 	}
+	memset(errstring, ' ', userstr_len);
 	errstring[userstr_len] = '\0';
 	char 	*errptr = errstring;
 
@@ -154,11 +142,13 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
 		
 		unsigned char	byte = '\0';
-		long		strtol_ret = 0;
-		if ((strtol_ret = strtol_wrapper(num_str, &errptr, 16)) < 0 ) {
+		long		strtol_ret;
+		if (!shuck(num_str,&strtol_ret, 16, &errptr)) {
+			errptr += strlen(num_str);
 			error = 2;
 			continue;
 		}
+		errptr += strlen(num_str);
 		byte = (unsigned char)strtol_ret;
 
 		/* each byte conveys four 2-bit move commands */
@@ -240,7 +230,7 @@ main(int argc, char **argv)
 			delim = (int)*optarg;
 			break;
 		case 'y':
-			usr_fldbase = strtol_wrapper(optarg, NULL, 0);
+			shuck(optarg, &usr_fldbase, 0, NULL);
 			if ((usr_fldbase < 1) || (usr_fldbase > 127)) {
 				fprintf(stderr,
 				"ERROR: field base must be a hex, octal, or decimal integer > 0 and < 128.\n");
