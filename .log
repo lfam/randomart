@@ -1,3 +1,8 @@
+Mon,17 Nov 2014 23:39:29 -0500
+base64 encodes 3 bytes into 4, splitting the concatenation of the bytes into 4
+groups of 6 bits. The 6 bit groups are cast as chars against a custom base64
+alphabet. If a triplet is incomplete, pad the spaces with =. 
+
 Tue,11 Nov 2014 00:54:33 -0500
 Use isspace on errstring rather than asking strtol_wrapper() to use strtol_err.
 
