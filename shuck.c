@@ -19,7 +19,7 @@ shuck(const char *str, long *val, int radix, char **errptr)
 	if (*end != '\0' || end == str ||
 		(((long)val == LONG_MIN || (long)val == LONG_MAX)
 		&& errno == ERANGE)) {
-		if (errptr != NULL ) memcpy(*errptr, end, strlen(end));
+		if (errptr != NULL ) memcpy(*errptr, str, strlen(str));
 		ret = 0;
 	}
 	if (errno == 0) errno = saved;
