@@ -71,41 +71,27 @@ is_whitespace(const char *s)
  * error-generating input in a char* for the user to do something with.
  */
 long 
-strtol_wrapper(char *num_str, char **errptr, int radix)
+strtol_wrapper(char *str, char **errptr, int radix)
 {
-	size_t	num_strlen = strlen(num_str);
-	char	*end = NULL;
+	size_t	len = strlen(str);
+	char	*leftover = NULL;
+
 	errno 	= 0;
-	long	ret = strtol(num_str, &end, radix);
+	long	ret = strtol(str, &leftover, radix);
+
 	if ((LONG_MIN == ret || LONG_MAX == ret) && ERANGE == errno) {
-		fprintf(stderr, "ERROR: strtol() failed on input %s: %s\n", num_str, strerror(errno));
+		fprintf(stderr, "ERROR: strtol() failed on input %s: %s\n", str, strerror(errno));
 		return -1;
-	/*
-	 * TODO: some platforms (Darwin...) set errno != 0 outside of POSIX spec.
-	 */
-	} else if (EINVAL == errno) {
+	} else if ((EINVAL == errno) || ( '\0' != *leftover )) {
 		if (errptr != NULL) {
-		memcpy(*errptr, num_str, num_strlen);
-		*errptr += num_strlen;
+		memcpy(*errptr, str, len);
+		*errptr += len;
 		}
 		return -1;
-	} else if (errno != 0) {
-		perror("ERROR strtol()");
-		if (errptr != NULL) {
-		memcpy(*errptr, num_str, num_strlen);
-		*errptr += num_strlen;
 		}
-		return -1;
-	} else if ( '\0' != *end ) {
-		if (errptr != NULL) {
-		memcpy(*errptr, num_str, num_strlen);
-		*errptr += num_strlen;
-		}
-		return -1;
-	}
 	if (errptr != NULL) {
-		memset(*errptr, ' ', num_strlen);
-		*errptr += num_strlen;
+		memset(*errptr, ' ', len);
+		*errptr += len;
 	}
 	return ret;
 }
