@@ -60,8 +60,8 @@ shuck(const char *str, long *val, int radix, char **errptr)
 	*val = strtol(str, &end, radix);
 
 	if (*end != '\0' || end == str ||
-		(((long)val == LONG_MIN || (long)val == LONG_MAX)
-		&& errno == ERANGE)) {
+	(((long)val == LONG_MIN || (long)val == LONG_MAX)
+	&& errno == ERANGE)) {
 		if (errptr != NULL ) memcpy(*errptr, str, strlen(str));
 		ret = 0;
 	}
