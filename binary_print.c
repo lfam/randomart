@@ -26,9 +26,12 @@ main(void)
 			return 1;
 		}
 
-		int byte = (int)line[0];
-		printf(BYTETOBINARYPATTERN, BYTETOBINARY(byte));
-		printf("\n");
+		ssize_t i = 0;
+		for (i = 0; i < line_len - 1; i++) { 
+			int byte = (int)line[i];
+			printf(BYTETOBINARYPATTERN, BYTETOBINARY(byte));
+			printf("\n");
+		}
 	}
 	free(line);
 	return 0;
