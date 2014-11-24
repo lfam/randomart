@@ -2,26 +2,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#define BYTETOBINARYPATTERN "%d%d%d%d%d%d%d%d"
-#define BYTETOBINARY(byte)  \
-	(byte & 0x80 ? 1 : 0), \
-	(byte & 0x40 ? 1 : 0), \
-	(byte & 0x20 ? 1 : 0), \
-	(byte & 0x10 ? 1 : 0), \
-	(byte & 0x08 ? 1 : 0), \
-	(byte & 0x04 ? 1 : 0), \
-	(byte & 0x02 ? 1 : 0), \
-	(byte & 0x01 ? 1 : 0) 
-
-
-int decode(char *quad, char *out);
+int base64_d(char *quad, char *out);
 
 int
-decode(char *quad, char *out)
+base64_d(char *quad, char *out)
 {
-	/* base64 encoding array, for reference */
-	//const char encode[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
 	/* base64 decoding array  */
 	const char alphabet[256] = {
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -37,20 +22,16 @@ decode(char *quad, char *out)
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}; 
 
 	int i = 0, j;
-	char buff1[4];
-	char buff2[4];
+	char buff[4];
 
-	while ((buff2[i] = quad[i]) && (buff2[i] != '=')) {
-//		fprintf(stderr,
-//			"buff2[%d] is %d\n", i, buff2[i]);
+	while ((buff[i] = quad[i]) && (buff[i] != '=')) {
 		if ( ++i == 4) {
-
 			for (i = 0; i != 4; i++) 
-				buff2[i] = alphabet[(int)buff2[i]];
+				buff[i] = alphabet[(int)buff[i]];
 			
-			out[0] = ((buff2[0] << 2) ^ ((buff2[1] & 0x30) >> 4));  
-			out[1] = (((buff2[1] & 0x0f) << 4) ^ ((buff2[2] & 0x3c) >> 2));
-			out[2] = (((buff2[2] & 0x03) << 6) ^ (buff2[3] & 0x3f));
+			out[0] = ((buff[0] << 2) ^ ((buff[1] & 0x30) >> 4));  
+			out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
+			out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
 			i = 0;
 			return 1;
@@ -58,37 +39,18 @@ decode(char *quad, char *out)
 	}
 
 	if (i) {
-		fprintf(stderr, "in padding block as i is %d\n", i);
-		for (j = i; j < 4; j++) {
-			buff2[j] = '\0';
-//			printf("buff2[%d] is %d\n", j, buff2[j]);
-		}
-		for (j = 0; j < 4; j++) {
-			fprintf(stderr,
-				"buff2[%d] raw is %d\n", j, buff2[j]);
-			if (buff2[j] != 0)
-				buff2[j] = alphabet[(int)buff2[j]];
-			printf("buff2[%d] decoded to %d\n", j, buff2[j]);
-		}
+		for (j = i; j < 4; j++)
+			buff[j] = '\0';
+	
+		for (j = 0; j < i; j++)
+			buff[j] = alphabet[(int)buff[j]];
 
-		out[0] = ((buff2[0] << 2) ^ ((buff2[1] & 0x30) >> 4));  
-		fprintf(stderr,
-			"out[0] is %c\n", out[0]);
-		out[1] = (((buff2[1] & 0x0f) << 4) ^ ((buff2[2] & 0x3c) >> 2));
-//		fprintf(stderr, "buff1[2] is uninitialized\n");
-		out[2] = (((buff2[2] & 0x03) << 6) ^ (buff2[3] & 0x3f));
-//		fprintf(stderr, "now, buff1[2] is %c\n", buff1[2]);
-/*		
-		for (j = 0; j < (i - 1); j++)
-			fprintf(stderr, "j = %d\ni = %d\n", j, i);
-			fprintf(stderr,
-				"buff1[%d] is %c\n", j, buff1[j]);
-			out[j] = buff1[j];
-			fprintf(stderr,
-				"new out[%d] is %c\n", j, out[j]);
-*/
+		out[0] = ((buff[0] << 2) ^ ((buff[1] & 0x30) >> 4));  
+		out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
+		out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
+		return 1;
 	}
-	return 1;
+	return 0;
 }
 
 
@@ -104,8 +66,8 @@ main(void)
 
 	char	quad[5];
 	quad[4] = '\0';
-	char 	out[4];
-	out[3] = '\0';
+	char 	triplet[4];
+	triplet[3] = '\0';
 
 	while((len = getdelim(&line, &buf_len, delim, stdin)) > 0) {
 		line[len - 1] = '\0';
@@ -115,13 +77,11 @@ main(void)
 			quad[1] = line[1 + i];
 			quad[2] = line[2 + i];
 			quad[3] = line[3 + i];
-			printf("base64: %s\n", quad);
-			decode(quad, out);
-			printf("english: %s\n", out);
-			printf("\n");
+			base64_d(quad, triplet);
+			fputs(triplet, stdout);
 		}
+		printf("\n");
 	}
-//		printf("\n");
 	
 
 	free(line);
