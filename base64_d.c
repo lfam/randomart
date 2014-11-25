@@ -24,7 +24,7 @@ base64_d(char *quad, char *out)
 	int i = 0, j;
 	char buff[4];
 
-	while ((buff[i] = quad[i]) && (buff[i] != '=')) {
+	while ((buff[i] = quad[i]) && (buff[i] != '=') && (buff[i] != '0')) {
 		if ( ++i == 4) {
 			for (i = 0; i != 4; i++) 
 				buff[i] = alphabet[(int)buff[i]];
@@ -39,15 +39,27 @@ base64_d(char *quad, char *out)
 	}
 
 	if (i) {
-		for (j = i; j < 4; j++)
-			buff[j] = '\0';
 	
 		for (j = 0; j < i; j++)
 			buff[j] = alphabet[(int)buff[j]];
+		/*
+		 * The above and below blocks used to be reversed. This way
+		 * doesn't try to decode null bytes. The caller will print extra
+		 * nulls so maybe that can get fixed.
+		 */
+		for (j = i; j < 4; j++)
+			buff[j] = '\0';
 
 		out[0] = ((buff[0] << 2) ^ ((buff[1] & 0x30) >> 4));  
 		out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 		out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
+
+	/*
+	 * This was in the c++ version. It means that you don't emit the
+	 * padded characters at all -- not nulls. 
+	 *
+	 *	for (j=0;j<(i-1); j++) out << (char)buff1[j];
+	 */
 		return 1;
 	}
 	return 0;
@@ -77,10 +89,10 @@ main(void)
 			quad[1] = line[1 + i];
 			quad[2] = line[2 + i];
 			quad[3] = line[3 + i];
-			base64_d(quad, triplet);
+			if ( !base64_d(quad, triplet)) return 1;
 			fputs(triplet, stdout);
 		}
-		printf("\n");
+		printf("%c", delim);
 	}
 	
 
