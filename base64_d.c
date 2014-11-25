@@ -56,8 +56,8 @@ base64_d(char *quad, char *out)
 
 	/*
 	 * This was in the c++ version. It means that you don't emit the
-	 * padded characters at all -- not nulls. 
-	 *
+	 * padded characters at all -- not nulls. Left here as a reminder
+	 * to handle truncated input more correctly. 
 	 *	for (j=0;j<(i-1); j++) out << (char)buff1[j];
 	 */
 		return 1;
@@ -76,11 +76,11 @@ main(void)
 	ssize_t	len;
 	int	delim = 10; // ASCII newline
 
-	char	quad[5];
-	quad[4] = '\0';
-	char 	triplet[4];
-	triplet[3] = '\0';
-
+	char	*quad = NULL;
+	if ((quad = calloc(1, 5)) == NULL) return 1;
+	char	*triplet = NULL;
+	if ((triplet = calloc(1, 4)) == NULL) return 1;
+	
 	while((len = getdelim(&line, &buf_len, delim, stdin)) > 0) {
 		line[len - 1] = '\0';
 		int i;
@@ -91,11 +91,17 @@ main(void)
 			quad[3] = line[3 + i];
 			if ( !base64_d(quad, triplet)) return 1;
 			fputs(triplet, stdout);
+		/* 
+		 * start the loop where it left off, and insert null bytes or
+		 * pads in the empty spots.
+		 */
 		}
 		printf("%c", delim);
 	}
 	
 
 	free(line);
+	free(quad);
+	free(triplet);
 	return 0;
 }
