@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int base64_d(char *quad, char *out);
+char *base64_d(char *quad);
 
-int
-base64_d(char *quad, char *out)
+char
+*base64_d(char *quad)
 {
 	/* base64 decoding array  */
 	const char alphabet[256] = {
@@ -20,6 +20,9 @@ base64_d(char *quad, char *out)
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}; 
 
+	static char out[4];
+	out[3] = '\0';
+
 	int i = 0, j;
 	char buff[4];
 
@@ -33,7 +36,7 @@ base64_d(char *quad, char *out)
 			out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
 			i = 0;
-			return 1;
+			return out;
 		}
 	}
 
@@ -53,9 +56,10 @@ base64_d(char *quad, char *out)
 		out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 		out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-		return 1;
+		return out;
 	}
-	return 0;
+	return out;
+	errno = 1;
 }
 
 
@@ -68,16 +72,18 @@ main(void)
 
 	char	*quad = NULL;
 	if ((quad = calloc(1, 5)) == NULL) return 1;
-	char	*triplet = NULL;
-	if ((triplet = calloc(1, 4)) == NULL) return 1;
 	
 	int c;
 	int i = 0;
 	while (((c = getchar()) != delim) && (c != EOF)) {
 		quad[i] = c;
 		if (++i == 4) {
-			if ( !base64_d(quad, triplet)) return 1;
-			fputs(triplet, stdout);
+			printf("%s", base64_d(quad));
+		/*	if ( !base64_d(quad, triplet)) {
+				fprintf(stderr, "decoder error\n");
+				return 1;
+			}
+		*/
 			i = 0;
 		}
 	}
@@ -87,12 +93,10 @@ main(void)
 		for (j = i; j < 4; j++) {
 			quad[j] = '=';
 		}
-		if ( !base64_d(quad, triplet)) return 1;
-		fputs(triplet, stdout);
+		printf("%s", base64_d(quad));
 	}
 	printf("%c", delim);
 
 	free(quad);
-	free(triplet);
 	return 0;
 }
