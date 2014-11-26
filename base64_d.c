@@ -43,7 +43,7 @@ base64_d(char *quad, char *out)
 		for (j = 0; j < i; j++)
 			buff[j] = alphabet[(int)buff[j]];
 		/*
-		 * The above and below blocks used to be reversed. This way
+		 * The above and below blocks have been reversed. This way
 		 * doesn't try to decode null bytes. The caller will print extra
 		 * nulls so maybe that can get fixed.
 		 */
@@ -54,12 +54,6 @@ base64_d(char *quad, char *out)
 		out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 		out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-	/*
-	 * This was in the c++ version. It means that you don't emit the
-	 * padded characters at all -- not nulls. Left here as a reminder
-	 * to handle truncated input more correctly. 
-	 *	for (j=0;j<(i-1); j++) out << (char)buff1[j];
-	 */
 		return 1;
 	}
 	return 0;
@@ -71,9 +65,6 @@ base64_d(char *quad, char *out)
 int
 main(void)
 {
-	char 	*line = NULL;
-	size_t	buf_len = 0;
-	ssize_t	len;
 	int	delim = 10; // ASCII newline
 
 	char	*quad = NULL;
@@ -81,26 +72,27 @@ main(void)
 	char	*triplet = NULL;
 	if ((triplet = calloc(1, 4)) == NULL) return 1;
 	
-	while((len = getdelim(&line, &buf_len, delim, stdin)) > 0) {
-		line[len - 1] = '\0';
-		int i;
-		for (i = 0; i < len - 1; i += 4) {
-			quad[0] = line[0 + i];
-			quad[1] = line[1 + i];
-			quad[2] = line[2 + i];
-			quad[3] = line[3 + i];
+	int c;
+	int i = 0;
+	while (((c = getchar()) != delim) && (c != EOF)) {
+		quad[i] = c;
+		if (++i == 4) {
 			if ( !base64_d(quad, triplet)) return 1;
 			fputs(triplet, stdout);
-		/* 
-		 * start the loop where it left off, and insert null bytes or
-		 * pads in the empty spots.
-		 */
+			i = 0;
 		}
-		printf("%c", delim);
 	}
-	
 
-	free(line);
+	if(i) {
+		int j;
+		for (j = i; j < 4; j++) {
+			quad[j] = '=';
+		}
+		if ( !base64_d(quad, triplet)) return 1;
+		fputs(triplet, stdout);
+	}
+	printf("%c", delim);
+
 	free(quad);
 	free(triplet);
 	return 0;
