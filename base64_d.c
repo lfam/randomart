@@ -23,9 +23,8 @@ char
 	static char out[4];
 	out[3] = '\0';
 
-	int i = 0, j;
 	char buff[4];
-
+	int i = 0, j;
 	while ((buff[i] = quad[i]) && (buff[i] != '=') && (buff[i] != '0')) {
 		if ( ++i == 4) {
 			for (i = 0; i != 4; i++) 
@@ -59,7 +58,6 @@ char
 		return out;
 	}
 	return out;
-	errno = 1;
 }
 
 
@@ -68,34 +66,25 @@ char
 int
 main(void)
 {
-	int	delim = 10; // ASCII newline
-
-	char	*quad = NULL;
+	char *quad = NULL;
 	if ((quad = calloc(1, 5)) == NULL) return 1;
 	
+	int delim = 10; // ASCII newline
 	int c;
 	int i = 0;
 	while (((c = getchar()) != delim) && (c != EOF)) {
 		quad[i] = c;
 		if (++i == 4) {
 			printf("%s", base64_d(quad));
-		/*	if ( !base64_d(quad, triplet)) {
-				fprintf(stderr, "decoder error\n");
-				return 1;
-			}
-		*/
 			i = 0;
 		}
 	}
 
 	if(i) {
 		int j;
-		for (j = i; j < 4; j++) {
-			quad[j] = '=';
-		}
+		for (j = i; j < 4; j++)	quad[j] = '=';
 		printf("%s", base64_d(quad));
 	}
-	printf("%c", delim);
 
 	free(quad);
 	return 0;
