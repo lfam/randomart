@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-char *base64_d(char *quad);
+char *base64_d(char *in);
 
 char
-*base64_d(char *quad)
+*base64_d(char *in)
 {
 	/* base64 decoding array  */
 	const char alphabet[256] = {
@@ -25,7 +25,7 @@ char
 
 	char buff[4];
 	int i = 0, j;
-	while ((buff[i] = quad[i]) && (buff[i] != '=') && (buff[i] != '0')) {
+	while ((buff[i] = in[i]) && (buff[i] != '=') && (buff[i] != '0')) {
 		if ( ++i == 4) {
 			for (i = 0; i != 4; i++) 
 				buff[i] = alphabet[(int)buff[i]];
