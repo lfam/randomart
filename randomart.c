@@ -47,10 +47,10 @@ static int error = 0;
 /* function prototypes */
 char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
 int is_whitespace(const char *s);
-int shuck(const char *str, long *val, int radix, char **errptr);
+int strtol_wrap(const char *str, long *val, int radix, char **errptr);
 
 int
-shuck(const char *str, long *val, int radix, char **errptr)
+strtol_wrap(const char *str, long *val, int radix, char **errptr)
 {
 	char *end;
 	int ret = 1;
@@ -143,7 +143,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		
 		unsigned char	byte = '\0';
 		long		strtol_ret;
-		if (!shuck(num_str,&strtol_ret, 16, &errptr)) {
+		if (!strtol_wrap(num_str,&strtol_ret, 16, &errptr)) {
 			errptr += strlen(num_str);
 			error = 2;
 			continue;
@@ -230,7 +230,7 @@ main(int argc, char **argv)
 			delim = (int)*optarg;
 			break;
 		case 'y':
-			shuck(optarg, &usr_fldbase, 0, NULL);
+			strtol_wrap(optarg, &usr_fldbase, 0, NULL);
 			if ((usr_fldbase < 1) || (usr_fldbase > 127)) {
 				fprintf(stderr,
 				"ERROR: field base must be a hex, octal, or decimal integer > 0 and < 128.\n");
