@@ -1,8 +1,8 @@
-DEBUG ?= 1
-ifeq (DEBUG, 1)
-	CFLAGS =-Wall -Wextra -g3
+DEBUG=0
+ifeq ($(DEBUG), 1)
+	CFLAGS = -Wall -Wextra -DDEBUG -g3
 else
-	CFLAGS =-DNDEBUG -Wall -Wextra
+	CFLAGS = -Wall -Wextra -DNDEBUG 
 endif
 
 CC = gcc $(CFLAGS)
