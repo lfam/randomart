@@ -26,7 +26,7 @@ char
 
 	char buff[4];
 	int i = 0, j;
-	while ((buff[i] = in[i]) && (buff[i] != '=') && (buff[i] != '0')) {
+	while ((buff[i] = in[i]) && (buff[i] != '=') && (buff[i] != '\0')) {
 		if ( ++i == 4) {
 			for (i = 0; i != 4; i++) 
 				buff[i] = alphabet[(int)buff[i]];
