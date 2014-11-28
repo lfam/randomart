@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 char *base64_d(char *in);
 
@@ -77,6 +78,7 @@ main(void)
 		if (++i == 4) {
 			printf("%s", base64_d(quad));
 			i = 0;
+			memset(quad, '\0', 5);
 		}
 	}
 
@@ -84,6 +86,7 @@ main(void)
 		int j;
 		for (j = i; j < 4; j++)	quad[j] = '=';
 		printf("%s", base64_d(quad));
+		memset(quad, '\0', 5);
 	}
 
 	free(quad);
