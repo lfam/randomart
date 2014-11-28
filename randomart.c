@@ -45,9 +45,9 @@
 static int error = 0;
 
 /* function prototypes */
-char *fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase);
+char *fingerprint_randomart(char *, size_t, size_t);
 int is_whitespace(const char *s);
-int strtol_wrap(const char *str, long *val, int radix, char **errptr);
+int strtol_wrap(const char*, long*, int, char **);
 
 int
 strtol_wrap(const char *str, long *val, int radix, char **errptr)
