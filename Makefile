@@ -1,17 +1,19 @@
 DEBUG ?= 1
 ifeq (DEBUG, 1)
-	CFLAGS =-g3
+	CFLAGS =-Wall -Wextra -g3
 else
-	CFLAGS =-DNDEBUG
+	CFLAGS =-DNDEBUG -Wall -Wextra
 endif
 
 CC = gcc $(CFLAGS)
 
 base64_d:
-	gcc -Wall -Wextra -g base64_d.c libbase64_d.c -o base64_d
+	$(CC) base64_d.c libbase64_d.c -o base64_d
 
 randomart:
-	gcc -Wall -Wextra -g randomart.c -o randomart
+	$(CC) randomart.c -o randomart
 
+strtol_wrap:
+	$(CC) strtol_wrap.c libstrtol_wrap.c -o strtol_wrap
 clean:
-	rm randomart base64_d
+	rm randomart base64_d strtol_wrap
