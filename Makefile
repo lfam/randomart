@@ -7,7 +7,7 @@ endif
 
 CC = gcc $(CFLAGS)
 
-.PHONY: all test clean
+.PHONY: clean
 
 base64_d:
 	$(CC) base64_d.c libbase64_d.c -o base64_d
