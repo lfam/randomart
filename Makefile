@@ -12,8 +12,11 @@ CC = gcc $(CFLAGS)
 base64_d:
 	$(CC) base64_d.c libbase64_d.c -o base64_d
 
-randomart:
-	$(CC) randomart.c -o randomart
+randomart: randomart.o
+	$(CC) -o randomart randomart.o
+
+randomart.o: randomart.c
+	$(CC) -c randomart.c
 
 strtol_wrap:
 	$(CC) strtol_wrap.c libstrtol_wrap.c -o strtol_wrap
