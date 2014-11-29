@@ -7,6 +7,8 @@ endif
 
 CC = gcc $(CFLAGS)
 
+.PHONY: clean
+
 base64_d:
 	$(CC) base64_d.c libbase64_d.c -o base64_d
 
@@ -16,4 +18,4 @@ randomart:
 strtol_wrap:
 	$(CC) strtol_wrap.c libstrtol_wrap.c -o strtol_wrap
 clean:
-	rm randomart base64_d strtol_wrap
+	rm -f randomart base64_d strtol_wrap *.o
