@@ -6,6 +6,8 @@
 #include <ctype.h>
 #include <unistd.h>
 
+#include "strtol_wrap.h"
+
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -44,27 +46,6 @@
 /* function prototypes */
 char *fingerprint_randomart(unsigned char *, size_t, size_t);
 int is_whitespace(const char *s);
-int strtol_wrap(const char*, long*, int, char **);
-
-int
-strtol_wrap(const char *str, long *val, int radix, char **errptr)
-{
-	char *end;
-	int ret = 1;
-
-	int saved = errno;
-	errno = 0;
-	*val = strtol(str, &end, radix);
-
-	if (*end != '\0' || end == str ||
-	(((long)val == LONG_MIN || (long)val == LONG_MAX)
-	&& errno == ERANGE)) {
-		if (errptr != NULL ) memcpy(*errptr, str, strlen(str));
-		ret = 0;
-	}
-	if (errno == 0) errno = saved;
-	return ret;
-}
 
 /* functions */
 /* is_whitespace() adapted from:
