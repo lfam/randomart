@@ -256,7 +256,7 @@ main(int argc, char **argv)
 		puts(line);
 
 		char	*randomart = NULL;
-		if ((randomart = fingerprint_randomart(userstr, strlen(userstr), (size_t)usr_fldbase)) == NULL) {
+		if ((randomart = fingerprint_randomart(userstr, strlen((char *)userstr), (size_t)usr_fldbase)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
 			return 1;
 		}
