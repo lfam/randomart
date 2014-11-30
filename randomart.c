@@ -41,11 +41,8 @@
  * walked in either direction.
  */
 
-/* global variables */
-static int error = 0;
-
 /* function prototypes */
-char *fingerprint_randomart(char *, size_t, size_t);
+char *fingerprint_randomart(unsigned char *, size_t, size_t);
 int is_whitespace(const char *s);
 int strtol_wrap(const char*, long*, int, char **);
 
@@ -84,7 +81,7 @@ is_whitespace(const char *s)
 }
 
 char * 
-fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
+fingerprint_randomart(unsigned char *userstr, size_t userstr_len, size_t usr_fldbase)
 {
 	/*
 	 * Chars to be used after each other every time the worm
@@ -123,39 +120,15 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 	x = fld_x / 2;
 	y = fld_y / 2;
 
-	/* set up error reporting for strtol() on user's input */
-	char	*errstring = NULL;
-	if ((errstring = malloc(userstr_len + 1)) == NULL) {
-		perror("ERROR malloc()");
-		return NULL;
-	}
-	memset(errstring, ' ', userstr_len);
-	errstring[userstr_len] = '\0';
-	char 	*errptr = errstring;
-
 	/* process user's input */
-	for (i = 0; i < userstr_len; i+=2) {
-
-		/* break off two characters (i.e. one hex byte) */
-		char	num_str[3];
-		memset(num_str, 0, sizeof(num_str));
-		memcpy(num_str, &userstr[i], sizeof(num_str) - 1);
-		
-		unsigned char	byte = '\0';
-		long		strtol_ret;
-		if (!strtol_wrap(num_str,&strtol_ret, 16, &errptr)) {
-			errptr += strlen(num_str);
-			error = 2;
-			continue;
-		}
-		errptr += strlen(num_str);
-		byte = (unsigned char)strtol_ret;
-
-		/* each byte conveys four 2-bit move commands */
+	for (i = 0; i < userstr_len; i++) {
+		int input;
+		input = userstr[i];
+		/* each input byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
 			/* evaluate 2 bit, rest is shifted later */
-			x += (byte & 0x1) ? 1 : -1;
-			y += (byte & 0x2) ? 1 : -1;
+			x += (input & 0x1) ? 1 : -1;
+			y += (input & 0x2) ? 1 : -1;
 
 			/* assure we are still in bounds */
 			x = MAX(x, 0);
@@ -166,15 +139,10 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 			/* augment the field */
 			if (field[x][y] < len - 2)
 				field[x][y]++;
-			byte = byte >> 2;
+			input = input >> 2;
 		}
 	}
 
-	if ( !is_whitespace(errstring)) {
-		fputs(errstring, stderr);
-		fprintf(stderr, "<-- ERROR: not hexadecimal\n");
-	}
-	free(errstring);
 
 	/* mark starting point and end point*/
 	field[fld_x / 2][fld_y / 2] = len - 1;
@@ -205,8 +173,7 @@ fingerprint_randomart(char *userstr, size_t userstr_len, size_t usr_fldbase)
 		*p++ = '-';
 	*p++ = '+';
 
-	/* show input line and return art */
-	puts(userstr);
+	/* return art */
 	return retval;
 }
 
@@ -251,17 +218,65 @@ main(int argc, char **argv)
 		}
 
 		line[line_len - 1] = '\0';
+
+		/* set up error reporting for strtol() on user's input */
+		char	*errstring = NULL;
+		if ((errstring = malloc(line_len + 1)) == NULL) {
+			perror("ERROR malloc()");
+			return 1;
+		}
+		memset(errstring, ' ', line_len);
+		errstring[line_len] = '\0';
+		char 	*errptr = errstring;
+
+		/* set up unsigned char array for processing */
+		unsigned char *userstr = NULL;
+		if ((userstr = malloc((line_len / 2) + 1)) == NULL) {
+			perror("ERROR malloc()");
+			return 1;
+		}
+		userstr[line_len / 2] = '\0';
+/*		fprintf(stderr,
+			"hoping for %d\n", (line_len / 2) + 1);
+*/
+		unsigned char *strp = userstr;
+
+		int i;
+		for (i = 0; i < line_len - 1; i += 2) {
+			/* break off two characters (i.e. one hex byte) */
+			char num_str[3] = {0};
+			memcpy(num_str, &line[i], sizeof(num_str) - 1);
+
+/*			fprintf(stderr,
+				"i = %d, processing %s\n", i, num_str);
+*/			
+			/* process one hex byte */
+			long strtol_ret;
+			strtol_wrap(num_str, &strtol_ret, 16, &errptr);
+			errptr += strlen(num_str);
+			*strp = strtol_ret;
+			strp += sizeof(unsigned char);
+		}
+
+		if ( !is_whitespace(errstring)) {
+			fputs(errstring, stderr);
+			fprintf(stderr, "<-- ERROR: not hexadecimal\n");
+		}
+		free(errstring);
+		puts(line);
+
 		char	*randomart = NULL;
-		if ((randomart = fingerprint_randomart(line, (size_t)line_len - 1, (size_t)usr_fldbase)) == NULL) {
+		if ((randomart = fingerprint_randomart(userstr, strlen(userstr), (size_t)usr_fldbase)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
 			return 1;
 		}
 		memset(line, 0, (size_t)line_len);
 		printf("%s\n",randomart);
 
+		free(userstr);
 		free(randomart);
 	}
 
 	free(line);
-	return error;
+	return 0;
 }
