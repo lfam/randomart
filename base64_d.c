@@ -1,5 +1,5 @@
-char
-*base64_d(char *in)
+char *
+base64_d(char *in)
 {
 	/* base64 decoding array  */
 	const char alphabet[256] = {
@@ -15,7 +15,7 @@ char
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}; 
 
-	static char out[4] = {0};
+	static char out[4] = {'\0'};
 	out[3] = '\0';
 
 	char buff[4];
