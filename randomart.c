@@ -206,9 +206,19 @@ main(int argc, char **argv)
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
 			return 1;
 		}
-
 		line[line_len - 1] = '\0';
 
+
+		/* should this be out here? */
+		unsigned char *userstr = NULL;
+		size_t nnums;
+		switch (radix) {
+		break; case 16: nnums = 2;
+		break; case 64: nnums = 4;
+		break; default: break;
+		}
+
+		{
 		/* set up error reporting for strtol() on user's input */
 		char	*errstring = NULL;
 		if ((errstring = malloc(line_len + 1)) == NULL) {
@@ -220,26 +230,21 @@ main(int argc, char **argv)
 		char 	*errptr = errstring;
 
 		/* set up unsigned char array for processing */
-		unsigned char *userstr = NULL;
-		if ((userstr = malloc((line_len / 2) + 1)) == NULL) {
+		if ((userstr = malloc((line_len / 4) + 1)) == NULL) {
 			perror("ERROR malloc()");
 			return 1;
 		}
 		userstr[line_len / 2] = '\0';
-/*		fprintf(stderr,
-			"hoping for %d\n", (line_len / 2) + 1);
-*/
 		unsigned char *strp = userstr;
 
 		int i;
-		for (i = 0; i < line_len - 1; i += 2) {
+		for (i = 0; i < line_len - 1; i += nnums) {
 			/* break off two characters (i.e. one hex byte) */
-			char num_str[3] = {0};
+			//char num_str[nnums + 1] = {0};
+			char num_str[nnums + 1];
+			memset(num_str, '\0', sizeof(num_str));
 			memcpy(num_str, &line[i], sizeof(num_str) - 1);
 
-/*			fprintf(stderr,
-				"i = %d, processing %s\n", i, num_str);
-*/			
 			/* process one hex byte */
 			long strtol_ret;
 			strtol_wrap(num_str, &strtol_ret, 16, &errptr);
@@ -254,6 +259,7 @@ main(int argc, char **argv)
 		}
 		free(errstring);
 		puts(line);
+		}
 
 		char	*randomart = NULL;
 		if ((randomart = fingerprint_randomart(userstr, strlen((char *)userstr), (size_t)usr_fldbase)) == NULL) {
