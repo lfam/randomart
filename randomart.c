@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "strtol_wrap.h"
+#include "base64_d.h"
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -161,14 +162,12 @@ fingerprint_randomart(unsigned char *userstr, size_t userstr_len, size_t usr_fld
 int 
 main(int argc, char **argv)
 {
-	char	*line = NULL;
-	size_t	line_buf_len = 0;
-	ssize_t	line_len;
+	// Default parameter values
 	int	delim = 10; // ASCII for newline
 	ssize_t	usr_fldbase = 8;
-	int	c;
 	ssize_t	radix = 16;
 
+	int	c;
 	while ((c = getopt(argc, argv, "d:r:y:")) != -1)
 		switch (c) {
 		case 'd':
@@ -197,6 +196,10 @@ main(int argc, char **argv)
 		default:
 			return 1;
 		}
+
+	char	*line = NULL;
+	size_t	line_buf_len = 0;
+	ssize_t	line_len;
 
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		if (line_len < 0) {
@@ -230,34 +233,57 @@ main(int argc, char **argv)
 		char 	*errptr = errstring;
 
 		/* set up unsigned char array for processing */
-		if ((userstr = malloc((line_len / 4) + 1)) == NULL) {
+		if ((userstr = malloc((line_len / nnums) + 1)) == NULL) {
 			perror("ERROR malloc()");
 			return 1;
 		}
-		userstr[line_len / 2] = '\0';
+		userstr[((line_len / 3) + 1 )] = '\0';
+		fprintf(stderr, "memory addr of userstr is %p\n", userstr);
 		unsigned char *strp = userstr;
+		fprintf(stderr, "memory addr of strp is %p\n", strp);
 
 		int i;
 		for (i = 0; i < line_len - 1; i += nnums) {
-			/* break off two characters (i.e. one hex byte) */
+			/* for radix, take enough chars to process into one byte */
 			//char num_str[nnums + 1] = {0};
 			char num_str[nnums + 1];
 			memset(num_str, '\0', sizeof(num_str));
 			memcpy(num_str, &line[i], sizeof(num_str) - 1);
 
-			/* process one hex byte */
-			long strtol_ret;
-			strtol_wrap(num_str, &strtol_ret, 16, &errptr);
-			errptr += strlen(num_str);
-			*strp = strtol_ret;
-			strp += sizeof(unsigned char);
+			/* process the byte */
+			switch (radix) {
+			case 16:
+				{
+				long strtol_ret;
+				strtol_wrap(num_str, &strtol_ret, 16, &errptr);
+				errptr += strlen(num_str);
+				*strp = strtol_ret;
+				strp += sizeof(unsigned char);
+				}
+				break;
+			case 64:
+				{
+				fprintf(stderr, "num_str is %s\n", num_str);
+				char decoded[4] = {'\0'};
+				if (!base64_d(num_str, decoded)) return 1;
+				memcpy(strp, decoded, 4);
+				fprintf(stderr, "memory addr of strp is %p\n", strp);
+				fprintf(stderr, "strp is %s\n", strp);
+				fprintf(stderr, "userstr is %s\n", userstr);
+				strp += 3;
+				}
+				break;
+			default: break;
+			}
 		}
 
+		/* if errstring is not just whitespace, print it */
 		if ( !is_whitespace(errstring)) {
 			fputs(errstring, stderr);
 			fprintf(stderr, "<-- ERROR: not hexadecimal\n");
 		}
 		free(errstring);
+		/* show input... unnecessary? */
 		puts(line);
 		}
 
