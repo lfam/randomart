@@ -1,1 +1,1 @@
-int base64_d(char *, char *);
+char *base64_d(char *);

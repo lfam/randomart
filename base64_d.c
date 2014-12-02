@@ -1,9 +1,5 @@
-#include <stdlib.h>
-#include <errno.h>
-#include <stdio.h>
-
-int
-base64_d(char *in, char *out)
+char *
+base64_d(char *in)
 {
 	/* base64 decoding array  */
 	const char alphabet[256] = {
@@ -19,6 +15,7 @@ base64_d(char *in, char *out)
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}; 
 
+	static char out[4] = {'\0'};
 	out[3] = '\0';
 
 	char buff[4];
@@ -33,7 +30,7 @@ base64_d(char *in, char *out)
 			out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
 			i = 0;
-			return 1;
+			return out;
 		}
 	}
 
@@ -53,7 +50,7 @@ base64_d(char *in, char *out)
 		out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 		out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-		return 1;
+		return out;
 	}
-	return 1;
+	return out;
 }
