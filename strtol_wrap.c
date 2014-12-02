@@ -4,7 +4,7 @@
 #include <limits.h>
 
 int
-strtol_wrap(const char *str, long *val, int radix, char **errptr)
+strtol_wrap(long *val, const char *str, int radix, char **errptr)
 {
 	char *end;
 	int ret = 1;

@@ -1,1 +1,1 @@
-int strtol_wrap(const char*, long*, int, char**);
+int strtol_wrap(long *, const char*, int, char**);

@@ -178,7 +178,7 @@ main(int argc, char **argv)
 			delim = (int)*optarg;
 			break;
 		case 'y':
-			strtol_wrap(optarg, &usr_fldbase, 0, NULL);
+			strtol_wrap(&usr_fldbase, optarg, 0, NULL);
 			if ((usr_fldbase < 1) || (usr_fldbase > 127)) {
 				fprintf(stderr,
 				"ERROR: field base must be a hex, octal, or decimal integer > 0 and < 128.\n");
@@ -233,7 +233,7 @@ main(int argc, char **argv)
 */			
 			/* process one hex byte */
 			long strtol_ret;
-			strtol_wrap(num_str, &strtol_ret, 16, &errptr);
+			strtol_wrap(&strtol_ret, num_str, 16, &errptr);
 			errptr += strlen(num_str);
 			*strp = strtol_ret;
 			strp += sizeof(unsigned char);
