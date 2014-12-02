@@ -27,7 +27,7 @@ int main(void)
 		char *errptr = errstring;
 
 		long parsed;
-		if (!strtol_wrap(line, &parsed, 16, &errptr)) {
+		if (!strtol_wrap(&parsed, line, 16, &errptr)) {
 			fputs(errstring, stderr);
 			fprintf(stderr, "<-- failed\n");
 		}
