@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>
-#include "libstrtol_wrap.h"
+#include "strtol_wrap.h"
 
 int main(void)
 {
@@ -25,6 +25,8 @@ int main(void)
 		}
 		errstring[line_len] = '\0';
 		char *errptr = errstring;
+		printf("addr of errstring is %p\n", errstring);
+		printf("addr of errptr is %p\n", errptr);
 
 		long parsed;
 		if (!strtol_wrap(line, &parsed, 16, &errptr)) {
