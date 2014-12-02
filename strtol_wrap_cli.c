@@ -25,8 +25,6 @@ int main(void)
 		}
 		errstring[line_len] = '\0';
 		char *errptr = errstring;
-		printf("addr of errstring is %p\n", errstring);
-		printf("addr of errptr is %p\n", errptr);
 
 		long parsed;
 		if (!strtol_wrap(line, &parsed, 16, &errptr)) {
