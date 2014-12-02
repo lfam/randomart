@@ -7,7 +7,6 @@
 #include <unistd.h>
 
 #include "strtol_wrap.h"
-#include "base64_d.h"
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -162,13 +161,14 @@ fingerprint_randomart(unsigned char *userstr, size_t userstr_len, size_t usr_fld
 int 
 main(int argc, char **argv)
 {
-	// Default parameter values
+	char	*line = NULL;
+	size_t	line_buf_len = 0;
+	ssize_t	line_len;
 	int	delim = 10; // ASCII for newline
 	ssize_t	usr_fldbase = 8;
-	ssize_t	radix = 16;
-
 	int	c;
-	while ((c = getopt(argc, argv, "d:r:y:")) != -1)
+
+	while ((c = getopt(argc, argv, "d:y:")) != -1)
 		switch (c) {
 		case 'd':
 			if (strlen(optarg) > 1) {
@@ -176,14 +176,6 @@ main(int argc, char **argv)
 				"WARNING: only first character of delimiter will be used.\n");
 			}
 			delim = (int)*optarg;
-			break;
-		case 'r':
-			strtol_wrap(optarg, &radix, 10, NULL);
-			if (((radix < 2) || (radix > 36)) && radix != 64 ) {
-				fprintf(stderr,
-				"ERROR: Radix must be between 2 and 36 inclusive, or 64.\n");
-				return 1;
-			}
 			break;
 		case 'y':
 			strtol_wrap(optarg, &usr_fldbase, 0, NULL);
@@ -197,10 +189,6 @@ main(int argc, char **argv)
 			return 1;
 		}
 
-	char	*line = NULL;
-	size_t	line_buf_len = 0;
-	ssize_t	line_len;
-
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		if (line_len < 0) {
 			perror("ERROR getdelim()");
@@ -209,19 +197,9 @@ main(int argc, char **argv)
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
 			return 1;
 		}
+
 		line[line_len - 1] = '\0';
 
-
-		/* should this be out here? */
-		unsigned char *userstr = NULL;
-		size_t nnums;
-		switch (radix) {
-		break; case 16: nnums = 2;
-		break; case 64: nnums = 4;
-		break; default: break;
-		}
-
-		{
 		/* set up error reporting for strtol() on user's input */
 		char	*errstring = NULL;
 		if ((errstring = malloc(line_len + 1)) == NULL) {
@@ -233,62 +211,43 @@ main(int argc, char **argv)
 		char 	*errptr = errstring;
 
 		/* set up unsigned char array for processing */
-		if ((userstr = malloc((line_len / nnums) + 1)) == NULL) {
+		unsigned char *userstr = NULL;
+		if ((userstr = malloc((line_len / 2) + 1)) == NULL) {
 			perror("ERROR malloc()");
 			return 1;
 		}
-		userstr[((line_len / 3) + 1 )] = '\0';
-		fprintf(stderr, "memory addr of userstr is %p\n", userstr);
+		userstr[line_len / 2] = '\0';
+/*		fprintf(stderr,
+			"hoping for %d\n", (line_len / 2) + 1);
+*/
 		unsigned char *strp = userstr;
-		fprintf(stderr, "memory addr of strp is %p\n", strp);
 
 		int i;
-		for (i = 0; i < line_len - 1; i += nnums) {
-			/* for radix, take enough chars to process into one byte */
-			//char num_str[nnums + 1] = {0};
-			char num_str[nnums + 1];
-			memset(num_str, '\0', sizeof(num_str));
+		for (i = 0; i < line_len - 1; i += 2) {
+			/* break off two characters (i.e. one hex byte) */
+			char num_str[3] = {0};
 			memcpy(num_str, &line[i], sizeof(num_str) - 1);
 
-			/* process the byte */
-			switch (radix) {
-			case 16:
-				{
-				long strtol_ret;
-				strtol_wrap(num_str, &strtol_ret, 16, &errptr);
-				errptr += strlen(num_str);
-				*strp = strtol_ret;
-				strp += sizeof(unsigned char);
-				}
-				break;
-			case 64:
-				{
-				fprintf(stderr, "num_str is %s\n", num_str);
-				char decoded[4] = {'\0'};
-				if (!base64_d(num_str, decoded)) return 1;
-				memcpy(strp, decoded, 4);
-				fprintf(stderr, "memory addr of strp is %p\n", strp);
-				fprintf(stderr, "strp is %s\n", strp);
-				fprintf(stderr, "userstr is %s\n", userstr);
-				strp += 3;
-				}
-				break;
-			default: break;
-			}
+/*			fprintf(stderr,
+				"i = %d, processing %s\n", i, num_str);
+*/			
+			/* process one hex byte */
+			long strtol_ret;
+			strtol_wrap(num_str, &strtol_ret, 16, &errptr);
+			errptr += strlen(num_str);
+			*strp = strtol_ret;
+			strp += sizeof(unsigned char);
 		}
 
-		/* if errstring is not just whitespace, print it */
 		if ( !is_whitespace(errstring)) {
 			fputs(errstring, stderr);
 			fprintf(stderr, "<-- ERROR: not hexadecimal\n");
 		}
 		free(errstring);
-		/* show input... unnecessary? */
 		puts(line);
-		}
 
 		char	*randomart = NULL;
-		if ((randomart = fingerprint_randomart(userstr, strlen((char *)userstr), (size_t)usr_fldbase)) == NULL) {
+		if ((randomart = fingerprint_randomart(userstr, strlen(userstr), (size_t)usr_fldbase)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
 			return 1;
 		}
