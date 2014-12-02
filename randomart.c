@@ -167,9 +167,8 @@ main(int argc, char **argv)
 	int	delim = 10; // ASCII for newline
 	ssize_t	usr_fldbase = 8;
 	int	c;
-	ssize_t	radix = 16;
 
-	while ((c = getopt(argc, argv, "d:r:y:")) != -1)
+	while ((c = getopt(argc, argv, "d:y:")) != -1)
 		switch (c) {
 		case 'd':
 			if (strlen(optarg) > 1) {
@@ -177,14 +176,6 @@ main(int argc, char **argv)
 				"WARNING: only first character of delimiter will be used.\n");
 			}
 			delim = (int)*optarg;
-			break;
-		case 'r':
-			strtol_wrap(optarg, &radix, 10, NULL);
-			if (((radix < 2) || (radix > 36)) && radix != 64 ) {
-				fprintf(stderr,
-				"ERROR: Radix must be between 2 and 36 inclusive, or 64.\n");
-				return 1;
-			}
 			break;
 		case 'y':
 			strtol_wrap(optarg, &usr_fldbase, 0, NULL);
