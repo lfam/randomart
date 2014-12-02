@@ -161,14 +161,12 @@ fingerprint_randomart(unsigned char *userstr, size_t userstr_len, size_t usr_fld
 int 
 main(int argc, char **argv)
 {
-	char	*line = NULL;
-	size_t	line_buf_len = 0;
-	ssize_t	line_len;
+	// Command-line parameter defaults
 	int	delim = 10; // ASCII for newline
 	ssize_t	usr_fldbase = 8;
-	int	c;
 	ssize_t	radix = 16;
 
+	int	c;
 	while ((c = getopt(argc, argv, "d:r:y:")) != -1)
 		switch (c) {
 		case 'd':
@@ -198,6 +196,9 @@ main(int argc, char **argv)
 			return 1;
 		}
 
+	char	*line = NULL;
+	size_t	line_buf_len = 0;
+	ssize_t	line_len;
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		if (line_len < 0) {
 			perror("ERROR getdelim()");
@@ -206,7 +207,6 @@ main(int argc, char **argv)
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
 			return 1;
 		}
-
 		line[line_len - 1] = '\0';
 
 		/* set up error reporting for strtol() on user's input */
@@ -226,9 +226,6 @@ main(int argc, char **argv)
 			return 1;
 		}
 		userstr[line_len / 2] = '\0';
-/*		fprintf(stderr,
-			"hoping for %d\n", (line_len / 2) + 1);
-*/
 		unsigned char *strp = userstr;
 
 		int i;
@@ -237,9 +234,6 @@ main(int argc, char **argv)
 			char num_str[3] = {0};
 			memcpy(num_str, &line[i], sizeof(num_str) - 1);
 
-/*			fprintf(stderr,
-				"i = %d, processing %s\n", i, num_str);
-*/			
 			/* process one hex byte */
 			long strtol_ret;
 			strtol_wrap(&strtol_ret, num_str, 16, &errptr);
