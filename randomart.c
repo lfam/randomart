@@ -180,9 +180,9 @@ main(int argc, char **argv)
 			break;
 		case 'r':
 			strtol_wrap(&radix, optarg, 10, NULL);
-			if (((radix < 2) || (radix > 36)) && radix != 64 ) {
+			if ((radix != 16) && (radix != 64)) {
 				fprintf(stderr,
-				"ERROR: Radix must be between 2 and 36 inclusive, or 64.\n");
+				"ERROR: Radix must be 16 or 64.\n");
 				return 1;
 			}
 			break;
