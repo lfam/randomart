@@ -1,4 +1,4 @@
-char *
+unsigned char *
 base64_d(char *in)
 {
 	/* base64 decoding array  */
@@ -15,7 +15,7 @@ base64_d(char *in)
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}; 
 
-	static char out[4] = {'\0'};
+	static unsigned char out[4] = {'\0'};
 	out[3] = '\0';
 
 	char buff[4];
