@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include "strtol_wrap.h"
+#include "base64_d.h"
 
 #ifndef MAX
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -207,7 +208,9 @@ main(int argc, char **argv)
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
 			return 1;
 		}
+		/* remove delimiter from end of line */
 		line[line_len - 1] = '\0';
+		line_len--;
 
 		/* set up error reporting for strtol() on user's input */
 		char	*errstring = NULL;
@@ -219,27 +222,58 @@ main(int argc, char **argv)
 		errstring[line_len] = '\0';
 		char 	*errptr = errstring;
 
+		/* set up radix specific parameters */
+		size_t nnums;
+		size_t raw_len;
+		switch (radix) {
+			case 16:
+				nnums = 2;
+				raw_len = (line_len / 2);
+				break;
+			case 64:
+				nnums = 4;
+				// line_len % 4... is that right?
+				raw_len = (((line_len / 4) * 3) + (line_len % 4));
+				break;
+			default:
+				break;
+		}
+
 		/* set up unsigned char array for processing */
-		unsigned char *userstr = NULL;
-		if ((userstr = malloc((line_len / 2) + 1)) == NULL) {
+		unsigned char *raw = NULL;
+		if ((raw = calloc(raw_len + 1, sizeof(unsigned char))) == NULL) {
 			perror("ERROR malloc()");
 			return 1;
 		}
-		userstr[line_len / 2] = '\0';
-		unsigned char *strp = userstr;
+		raw[raw_len] = '\0';
+		unsigned char *rawp = raw;
 
 		int i;
-		for (i = 0; i < line_len - 1; i += 2) {
+		for (i = 0; i < line_len; i += nnums) {
 			/* break off two characters (i.e. one hex byte) */
-			char num_str[3] = {0};
-			memcpy(num_str, &line[i], sizeof(num_str) - 1);
+			char num[nnums + 1];
+			memset(num, '\0', sizeof(num));
+			memcpy(num, &line[i], sizeof(num) - 1);
 
 			/* process one hex byte */
-			long strtol_ret;
-			strtol_wrap(&strtol_ret, num_str, 16, &errptr);
-			errptr += strlen(num_str);
-			*strp = strtol_ret;
-			strp += sizeof(unsigned char);
+			switch (radix) {
+			case 16:
+				;
+				long strtol_ret;
+				strtol_wrap(&strtol_ret, num, 16, &errptr);
+				errptr += strlen(num);
+				*rawp = strtol_ret;
+				rawp += sizeof(unsigned char);
+				break;
+			case 64:
+				;
+				unsigned char *decoded = base64_d(num);
+				memcpy(rawp, decoded, 3);
+				rawp += 3 * sizeof(unsigned char);
+				break;
+			default:
+				break;
+			}
 		}
 
 		if ( !is_whitespace(errstring)) {
@@ -247,17 +281,17 @@ main(int argc, char **argv)
 			fprintf(stderr, "<-- ERROR: not hexadecimal\n");
 		}
 		free(errstring);
-		puts(line);
+		puts(line); // is this really necessary?
 
 		char	*randomart = NULL;
-		if ((randomart = fingerprint_randomart(userstr, strlen((char *)userstr), (size_t)usr_fldbase)) == NULL) {
+		if ((randomart = fingerprint_randomart(raw, raw_len, (size_t)usr_fldbase)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
 			return 1;
 		}
 		memset(line, 0, (size_t)line_len);
 		printf("%s\n",randomart);
 
-		free(userstr);
+		free(raw);
 		free(randomart);
 	}
 
