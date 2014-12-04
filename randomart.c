@@ -278,7 +278,7 @@ main(int argc, char **argv)
 
 		if ( !is_whitespace(errstring)) {
 			fputs(errstring, stderr);
-			fprintf(stderr, "<-- ERROR: not hexadecimal\n");
+			fprintf(stderr, "<-- WARNING: not hexadecimal\n");
 		}
 		free(errstring);
 		puts(line); // is this really necessary?
