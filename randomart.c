@@ -14,6 +14,10 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 
+#ifndef MOD_BOOL
+#define MOD_BOOL(a) ((a > 0)?(3):(0))
+#endif
+
 /* Error codes:
  * 0	okay
  * 1	failure
@@ -232,8 +236,7 @@ main(int argc, char **argv)
 				break;
 			case 64:
 				nnums = 4;
-				// line_len % 4... is that right?
-				raw_len = (((line_len / 4) * 3) + (line_len % 4));
+				raw_len = (((line_len / 4) * 3) + MOD_BOOL(line_len));
 				break;
 			default:
 				break;
