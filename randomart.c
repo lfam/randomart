@@ -49,7 +49,7 @@
  */
 
 /* function prototypes */
-char *fingerprint_randomart(unsigned char *, size_t, size_t);
+char *fingerprint_randomart(unsigned char *, size_t, size_t, char *);
 int is_whitespace(const char *s);
 
 /* functions */
@@ -67,13 +67,20 @@ is_whitespace(const char *s)
 }
 
 char * 
-fingerprint_randomart(unsigned char *userstr, size_t userstr_len, size_t usr_fldbase)
+fingerprint_randomart(
+		unsigned char *userstr,
+		size_t userstr_len,
+		size_t usr_fldbase,
+		char *palette)
 {
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
 	 */
 	char	*augmentation_string = " .o+=*BOX@%&#/^SE";
+	if (palette != NULL) {
+		augmentation_string = palette;
+	}
 	char	*retval, *p;
 	size_t	b;
 	ssize_t	x, y;
@@ -168,11 +175,12 @@ main(int argc, char **argv)
 {
 	// Command-line parameter defaults
 	int	delim = 10; // ASCII for newline
-	ssize_t	usr_fldbase = 8;
+	char	*palette = NULL; // try " .,\`;-~*x=#%&@WSE" on the command line
 	ssize_t	radix = 16;
+	ssize_t	usr_fldbase = 8;
 
 	int	c;
-	while ((c = getopt(argc, argv, "d:r:y:")) != -1)
+	while ((c = getopt(argc, argv, "d:p:r:y:")) != -1)
 		switch (c) {
 		case 'd':
 			if (strlen(optarg) > 1) {
@@ -181,12 +189,21 @@ main(int argc, char **argv)
 			}
 			delim = (int)*optarg;
 			break;
+		case 'p':
+			if (strlen(optarg) != 17) {
+				fprintf(stderr,
+				"WARNING: palette should be 17 characters long.\n");
+			}
+			palette = calloc(17, sizeof(char));
+			memmove(palette, optarg, strlen(optarg));
+			break;
 		case 'r':
 			strtol_wrap(&radix, optarg, 10, NULL);
 			if ((radix != 16) && (radix != 64)) {
 				fprintf(stderr,
 				"ERROR: Radix must be 16 or 64.\n");
 				return 1;
+
 			}
 			break;
 		case 'y':
@@ -287,7 +304,7 @@ main(int argc, char **argv)
 		puts(line); // is this really necessary?
 
 		char	*randomart = NULL;
-		if ((randomart = fingerprint_randomart(raw, raw_len, (size_t)usr_fldbase)) == NULL) {
+		if ((randomart = fingerprint_randomart(raw, raw_len, (size_t)usr_fldbase, palette)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
 			return 1;
 		}
