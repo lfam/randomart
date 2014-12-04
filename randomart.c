@@ -18,12 +18,6 @@
 #define MOD_BOOL(a) ((a > 0)?(3):(0))
 #endif
 
-/* Error codes:
- * 0	okay
- * 1	failure
- * 2	not all input characters could be processed
- */
-
 /*
  * Draw an ASCII-Art representing the fingerprint so human brain can
  * profit from its built-in pattern recognition ability.
@@ -181,6 +175,7 @@ main(int argc, char **argv)
 
 	int	c;
 	while ((c = getopt(argc, argv, "d:p:r:y:")) != -1)
+	{
 		switch (c) {
 		case 'd':
 			if (strlen(optarg) > 1) {
@@ -217,6 +212,7 @@ main(int argc, char **argv)
 		default:
 			return 1;
 		}
+	}
 
 	char	*line = NULL;
 	size_t	line_buf_len = 0;
