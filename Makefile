@@ -24,4 +24,4 @@ strtol_wrap: strtol_wrap_cli.c strtol_wrap.o
 strtol_wrap.o: strtol_wrap.c
 	$(CC) -c strtol_wrap.c
 clean:
-	rm -f randomart base64_d_cli strtol_wrap_cli *.o
+	rm -f randomart base64_d strtol_wrap *.o
