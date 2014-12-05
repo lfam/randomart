@@ -240,8 +240,8 @@ main(int argc, char **argv)
 		char 	*errptr = errstring;
 
 		/* set up radix specific parameters */
-		size_t nnums;
-		size_t raw_len;
+		size_t nnums = 2;
+		size_t raw_len = line_len / 2;
 		switch (radix) {
 			case 16:
 				nnums = 2;
