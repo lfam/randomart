@@ -25,3 +25,4 @@ strtol_wrap.o: strtol_wrap.c
 	$(CC) -c strtol_wrap.c
 clean:
 	rm -f randomart base64_d strtol_wrap *.o
+	rm -rf *.dSYM
