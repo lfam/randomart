@@ -14,10 +14,6 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #endif
 
-#ifndef MOD_BOOL
-#define MOD_BOOL(a) ((a > 0)?(3):(0))
-#endif
-
 /*
  * Draw an ASCII-Art representing the fingerprint so human brain can
  * profit from its built-in pattern recognition ability.
@@ -249,7 +245,8 @@ main(int argc, char **argv)
 				break;
 			case 64:
 				nnums = 4;
-				raw_len = (((line_len / 4) * 3) + MOD_BOOL(line_len));
+				raw_len = (((line_len / 4) * 3) + (line_len % 4 ? 3 : 0));
+				fprintf(stderr, "line_len %d\nraw_len %d\n", line_len, raw_len);
 				break;
 			default:
 				break;
