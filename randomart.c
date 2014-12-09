@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "strtol_wrap.h"
 #include "base64_d.h"
@@ -75,7 +76,7 @@ fingerprint_randomart(
 	size_t	b;
 	ssize_t	x, y;
 	size_t	len = strlen(augmentation_string) - 1;
-	size_t fld_x, fld_y;
+	size_t  fld_x, fld_y;
 	size_t	i;
 
 	/*
@@ -125,7 +126,6 @@ fingerprint_randomart(
 			input = input >> 2;
 		}
 	}
-
 
 	/* mark starting point and end point*/
 	field[fld_x / 2][fld_y / 2] = len - 1;
@@ -221,6 +221,8 @@ main(int argc, char **argv)
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
 			return 1;
 		}
+		assert(line_len > 0);
+
 		/* remove delimiter from end of line */
 		line[line_len - 1] = '\0';
 		line_len--;
@@ -246,7 +248,6 @@ main(int argc, char **argv)
 			case 64:
 				nnums = 4;
 				raw_len = (((line_len / 4) * 3) + (line_len % 4 ? 3 : 0));
-				fprintf(stderr, "line_len %d\nraw_len %d\n", line_len, raw_len);
 				break;
 			default:
 				break;
@@ -274,6 +275,7 @@ main(int argc, char **argv)
 				;
 				long strtol_ret;
 				strtol_wrap(&strtol_ret, num, 16, &errptr);
+				assert(strtol_ret < 256);
 				errptr += strlen(num);
 				*rawp = strtol_ret;
 				rawp += sizeof(unsigned char);
