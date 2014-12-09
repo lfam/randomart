@@ -1,11 +1,20 @@
-DEBUG=0
-ifeq ($(DEBUG), 1)
-	CFLAGS = -Wall -Wextra -DDEBUG -g3
-else
-	CFLAGS = -Wall -Wextra -DNDEBUG 
+debug=1
+GCC_FLAGS = -Wall -Wextra -DDEBUG -g3
+CLANG_FLAGS = -Weverything -DDEBUG -g -O0
+ifeq ($(debug), 0)
+	GCC_FLAGS = -Wall -Wextra -DNDEBUG 
+	CLANG_FLAGS = -Weverything -DNDEBUG
 endif
 
-CC = gcc $(CFLAGS)
+GCC = gcc $(GCC_FLAGS)
+CLANG = clang $(CLANG_FLAGS)
+
+COMPILER = $(GCC)
+ifeq ($(compiler), clang)
+	COMPILER = $(CLANG)
+endif
+
+CC = $(COMPILER)
 
 .PHONY: clean
 
