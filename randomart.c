@@ -162,7 +162,7 @@ main(int argc, char **argv)
 				"WARNING: palette should be 17 characters long.\n");
 			}
 			palette = calloc(18, sizeof(char));
-			memmove(palette, optarg, 17);
+			memcpy(palette, optarg, 17);
 			break;
 		case 'r':
 			strtol_wrap(&radix, optarg, 10, NULL);
@@ -240,12 +240,14 @@ main(int argc, char **argv)
 
 		int i;
 		for (i = 0; i < line_len; i += nnums) {
-			/* break off two characters (i.e. one hex byte) */
+			/* break off enough characters to represent one 
+			 * unit of input for the specified radix
+			 */
 			char num[nnums + 1];
 			memset(num, '\0', sizeof(num));
 			memcpy(num, &line[i], sizeof(num) - 1);
 
-			/* process one hex byte */
+			/* process one unit of input */
 			switch (radix) {
 			case 16:
 				;
