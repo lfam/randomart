@@ -153,7 +153,6 @@ main(int argc, char **argv)
 			if (strlen(optarg) > 1) {
 				fprintf(stderr,
 				"WARNING: only first character of delimiter will be used.\n");
-				fprintf(stderr, "WARNING: ");
 			}
 			delim = (int)*optarg;
 			break;
@@ -162,8 +161,8 @@ main(int argc, char **argv)
 				fprintf(stderr,
 				"WARNING: palette should be 17 characters long.\n");
 			}
-			palette = calloc(17, sizeof(char));
-			memmove(palette, optarg, strlen(optarg));
+			palette = calloc(18, sizeof(char));
+			memmove(palette, optarg, 17);
 			break;
 		case 'r':
 			strtol_wrap(&radix, optarg, 10, NULL);
@@ -190,7 +189,6 @@ main(int argc, char **argv)
 	char	*line = NULL;
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
-	unsigned char *raw = NULL;
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		if (line_len < 0) {
 			perror("ERROR getdelim()");
@@ -232,7 +230,7 @@ main(int argc, char **argv)
 		}
 
 		/* set up unsigned char array for processing */
-		raw = NULL;
+		unsigned char *raw = NULL;
 		if ((raw = calloc(raw_len + 1, sizeof(unsigned char))) == NULL) {
 			perror("ERROR malloc()");
 			return 1;
@@ -282,9 +280,10 @@ main(int argc, char **argv)
 
 		puts(line); // is this really necessary?
 
-		char	*randomart = NULL;
+		char *randomart = NULL;
 		if ((randomart = fingerprint_randomart(raw, raw_len, (size_t)fldbase, palette)) == NULL) {
-			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
+			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n");
+			fputs(line, stderr);
 			return 1;
 		}
 		memset(line, 0, (size_t)line_len);
@@ -294,6 +293,7 @@ main(int argc, char **argv)
 		free(raw);
 	}
 
+	free(palette);
 	free(line);
 	return 0;
 }
