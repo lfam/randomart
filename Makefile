@@ -18,14 +18,14 @@ CC = $(COMPILER)
 
 .PHONY: clean
 
+randomart: randomart.c strtol_wrap.o base64_d.o
+	$(CC) -o randomart randomart.c strtol_wrap.o base64_d.o
+
 base64_d: base64_d.o base64_d_cli.c
 	$(CC) -o base64_d base64_d.o base64_d_cli.c
 
 base64_d.o: base64_d.c
 	$(CC) -c base64_d.c
-
-randomart: randomart.c strtol_wrap.o base64_d.o
-	$(CC) -o randomart randomart.c strtol_wrap.o base64_d.o
 
 strtol_wrap: strtol_wrap_cli.c strtol_wrap.o
 	$(CC) -o strtol_wrap strtol_wrap_cli.c strtol_wrap.o
