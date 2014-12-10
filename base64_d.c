@@ -33,7 +33,6 @@ base64_d(char *in)
 			out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 			out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-			i = 0;
 			return out;
 		}
 	}
