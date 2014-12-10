@@ -1,3 +1,7 @@
+/*
+ * Adapted by Leo Famulari from work by Inge Henriksen, (c) 2008, 2009.
+ * See LICENSE file for more information.
+ */
 unsigned char *
 base64_d(char *in)
 {
