@@ -146,9 +146,12 @@ main(int argc, char **argv)
 	ssize_t	fldbase = 8;
 
 	int	c;
-	while ((c = getopt(argc, argv, "d:p:r:y:")) != -1)
+	while ((c = getopt(argc, argv, "0d:p:r:y:")) != -1)
 	{
 		switch (c) {
+		case '0':
+			delim = 0;
+			break;
 		case 'd':
 			if (strlen(optarg) > 1) {
 				fprintf(stderr,
