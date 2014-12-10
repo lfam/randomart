@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Random hexadecimal generator
+# The first argument is the number of random bits to output. The second
+# argument is the number of iterations to perform.
+
 n_bits=${1:-128}
 n_bytes=$(expr "$n_bits" / 8)
 lines=${2:-1}
