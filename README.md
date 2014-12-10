@@ -48,7 +48,8 @@ $ ./randomart <md5_sample
 |       o =       |
 |        =.       |
 +-----------------+
-
+```
+```
 $ dd if=/dev/urandom bs=1 count=512 | base64 | tr -d '\n' | \
 ./randomart -r64 -y 32 -p" .,\`;-~*x=#%&@WSE"
 512+0 records in
