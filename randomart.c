@@ -68,7 +68,7 @@ fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fldbase, char *
 		fld_x -= 2;
 		fld_y--;
 	}
-	unsigned char	field[fld_x][fld_y];
+	unsigned char field[fld_x][fld_y];
 	
 	if ((retval = calloc(((size_t)fld_x + 3), ((size_t)fld_y + 2))) == NULL) {
 		perror("ERROR calloc()");
@@ -142,8 +142,8 @@ main(int argc, char **argv)
 	// Command-line parameter defaults
 	int	delim = 10; // ASCII for newline
 	char	*palette = NULL; // " .,\`;-~*x=#%&@WSE"
-	ssize_t	radix = 16;
-	ssize_t	fldbase = 8;
+	long	radix = 16;
+	long	fldbase = 8;
 
 	int	c;
 	while ((c = getopt(argc, argv, "0d:p:r:y:")) != -1)
