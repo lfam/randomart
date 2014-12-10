@@ -38,11 +38,6 @@ base64_d(char *in)
 	
 		for (j = 0; j < i; j++)
 			buff[j] = alphabet[(int)buff[j]];
-		/*
-		 * The above and below blocks have been reversed. This way
-		 * doesn't try to decode null bytes. The caller will print extra
-		 * nulls so maybe that can get fixed.
-		 */
 		for (j = i; j < 4; j++)
 			buff[j] = '\0';
 
