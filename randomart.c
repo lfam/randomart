@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "strtol_wrap.h"
 #include "base64_d.h"
@@ -32,65 +33,41 @@
  *
  * The algorithm used here is a worm crawling over a discrete plane,
  * leaving a trace (augmenting the field) everywhere it goes.
- * Movement is taken from userstr 2bit-wise.  Bumping into walls
+ * Movement is taken from raw 2bit-wise.  Bumping into walls
  * makes the respective movement vector be ignored for this turn.
  * Graphs are not unambiguous, because circles in graphs can be
  * walked in either direction.
  */
 
-/* function prototypes */
-char *fingerprint_randomart(unsigned char *, size_t, size_t, char *);
-int is_whitespace(const char *s);
-
-/* functions */
-/* is_whitespace() adapted from:
-   http://stackoverflow.com/a/3981593
-*/
-int
-is_whitespace(const char *s)
-{
-	while (*s != '\0') {
-		if (!isspace(*s)) return 0;
-		s++;
-	}
-	return 1;
-}
-
+char *fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fld_base, char *palette);
 char * 
-fingerprint_randomart(
-		unsigned char *userstr,
-		size_t userstr_len,
-		size_t usr_fldbase,
-		char *palette)
+fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fldbase, char *palette)
 {
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
 	 */
 	char	*augmentation_string = " .o+=*BOX@%&#/^SE";
-	if (palette != NULL) {
-		augmentation_string = palette;
-	}
+	if (palette != NULL) augmentation_string = palette;
+	size_t	len = strlen(augmentation_string) - 1;
+
 	char	*retval, *p;
 	size_t	b;
 	ssize_t	x, y;
-	size_t	len = strlen(augmentation_string) - 1;
-	size_t fld_x, fld_y;
+	size_t  fld_x, fld_y;
 	size_t	i;
 
 	/*
 	* Field sizes for the random art.  Have to be odd, so the starting point
-	* can be in the exact middle of the picture, and FLDBASE should be >=8 .
-	* Else pictures would be too dense, and drawing the frame would
-	* fail, too, because the key type would not fit in anymore.
+	* can be in the exact middle of the picture.
 	*/
-	fld_x = usr_fldbase * 2 + 1;
-	fld_y = usr_fldbase + 1;
-	if ((usr_fldbase & 1) == 1) {
+	fld_x = fldbase * 2 + 1;
+	fld_y = fldbase + 1;
+	/* make odd */
+	if ((fldbase & 1) == 1) {
 		fld_x -= 2;
 		fld_y--;
 	}
-
 	unsigned char	field[fld_x][fld_y];
 	
 	if ((retval = calloc(((size_t)fld_x + 3), ((size_t)fld_y + 2))) == NULL) {
@@ -104,9 +81,9 @@ fingerprint_randomart(
 	y = fld_y / 2;
 
 	/* process user's input */
-	for (i = 0; i < userstr_len; i++) {
+	for (i = 0; i < raw_len; i++) {
 		int input;
-		input = userstr[i];
+		input = raw[i];
 		/* each input byte conveys four 2-bit move commands */
 		for (b = 0; b < 4; b++) {
 			/* evaluate 2 bit, rest is shifted later */
@@ -125,7 +102,6 @@ fingerprint_randomart(
 			input = input >> 2;
 		}
 	}
-
 
 	/* mark starting point and end point*/
 	field[fld_x / 2][fld_y / 2] = len - 1;
@@ -165,9 +141,9 @@ main(int argc, char **argv)
 {
 	// Command-line parameter defaults
 	int	delim = 10; // ASCII for newline
-	char	*palette = NULL; // try " .,\`;-~*x=#%&@WSE" on the command line
+	char	*palette = NULL; // " .,\`;-~*x=#%&@WSE"
 	ssize_t	radix = 16;
-	ssize_t	usr_fldbase = 8;
+	ssize_t	fldbase = 8;
 
 	int	c;
 	while ((c = getopt(argc, argv, "d:p:r:y:")) != -1)
@@ -185,8 +161,8 @@ main(int argc, char **argv)
 				fprintf(stderr,
 				"WARNING: palette should be 17 characters long.\n");
 			}
-			palette = calloc(17, sizeof(char));
-			memmove(palette, optarg, strlen(optarg));
+			palette = calloc(18, sizeof(char));
+			memcpy(palette, optarg, 17);
 			break;
 		case 'r':
 			strtol_wrap(&radix, optarg, 10, NULL);
@@ -198,8 +174,8 @@ main(int argc, char **argv)
 			}
 			break;
 		case 'y':
-			strtol_wrap(&usr_fldbase, optarg, 0, NULL);
-			if ((usr_fldbase < 1) || (usr_fldbase > 127)) {
+			strtol_wrap(&fldbase, optarg, 0, NULL);
+			if ((fldbase < 1) || (fldbase > 127)) {
 				fprintf(stderr,
 				"ERROR: field base must be a hex, octal, or decimal integer > 0 and < 128.\n");
 				return 1;
@@ -221,6 +197,8 @@ main(int argc, char **argv)
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
 			return 1;
 		}
+		assert(line_len > 0);
+
 		/* remove delimiter from end of line */
 		line[line_len - 1] = '\0';
 		line_len--;
@@ -246,7 +224,6 @@ main(int argc, char **argv)
 			case 64:
 				nnums = 4;
 				raw_len = (((line_len / 4) * 3) + (line_len % 4 ? 3 : 0));
-				fprintf(stderr, "line_len %d\nraw_len %d\n", line_len, raw_len);
 				break;
 			default:
 				break;
@@ -263,17 +240,20 @@ main(int argc, char **argv)
 
 		int i;
 		for (i = 0; i < line_len; i += nnums) {
-			/* break off two characters (i.e. one hex byte) */
+			/* break off enough characters to represent one 
+			 * unit of input for the specified radix
+			 */
 			char num[nnums + 1];
 			memset(num, '\0', sizeof(num));
 			memcpy(num, &line[i], sizeof(num) - 1);
 
-			/* process one hex byte */
+			/* process one unit of input */
 			switch (radix) {
 			case 16:
 				;
 				long strtol_ret;
 				strtol_wrap(&strtol_ret, num, 16, &errptr);
+				assert(strtol_ret < 256);
 				errptr += strlen(num);
 				*rawp = strtol_ret;
 				rawp += sizeof(unsigned char);
@@ -289,25 +269,33 @@ main(int argc, char **argv)
 			}
 		}
 
-		if ( !is_whitespace(errstring)) {
-			fputs(errstring, stderr);
-			fprintf(stderr, "<-- WARNING: not hexadecimal\n");
+		errptr = errstring;
+		while (*errptr != '\0') {
+			if (!isspace(*errptr)) {
+				fputs(errstring, stderr);
+				fprintf(stderr, "<-- WARNING: not hexadecimal\n");
+				break;
+			}
+			errptr++;
 		}
 		free(errstring);
+
 		puts(line); // is this really necessary?
 
-		char	*randomart = NULL;
-		if ((randomart = fingerprint_randomart(raw, raw_len, (size_t)usr_fldbase, palette)) == NULL) {
-			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n%s\n", line);
+		char *randomart = NULL;
+		if ((randomart = fingerprint_randomart(raw, raw_len, (size_t)fldbase, palette)) == NULL) {
+			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n");
+			fputs(line, stderr);
 			return 1;
 		}
 		memset(line, 0, (size_t)line_len);
-		printf("%s\n",randomart);
+		puts(randomart);
 
-		free(raw);
 		free(randomart);
+		free(raw);
 	}
 
+	free(palette);
 	free(line);
 	return 0;
 }
