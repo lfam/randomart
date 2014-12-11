@@ -1,6 +1,24 @@
 /*
  * Adapted by Leo Famulari from work by Inge Henriksen, (c) 2008, 2009.
  * See LICENSE file for more information.
+ *
+ * 1. The following code is part of TM++, the "Software", is an embedded 
+ * topic maps engine written in Standard C++.
+ * 2. Copyright (C) 2007-2009 Inge Eivind Henriksen.
+ *
+ * 3. You are not allowed to use this software to make a database management 
+ * system without the written consent of Inge Eivind Henriksen.
+ *
+ * 4. If not violating any of the conditions of paragraph 3, then this 
+ * software is free software: you can redistribute it and/or modify it under 
+ * the terms of the MIT License as published by the Open Source Initiative.
+ *
+ * 5. This software is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the MIT License for more details.
+ *
+ * 6. You should have received a copy of the The MIT License along with this 
+ * software. If not, see <http://www.opensource.org/licenses>.
  */
 unsigned char *
 base64_d(char *in)
