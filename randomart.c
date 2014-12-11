@@ -40,6 +40,7 @@
  */
 
 char *fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fld_base, char *palette);
+
 char * 
 fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fldbase, char *palette)
 {
@@ -139,6 +140,11 @@ fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fldbase, char *
 int 
 main(int argc, char **argv)
 {
+	int	error = 0;
+	char	*line = NULL;
+	char	*errstring = NULL;
+	unsigned char 	*raw = NULL;
+	char	*randomart = NULL;
 	// Command-line parameter defaults
 	int	delim = 10; // ASCII for newline
 	char	*palette = NULL; // " .,\`;-~*x=#%&@WSE"
@@ -172,7 +178,8 @@ main(int argc, char **argv)
 			if ((radix != 16) && (radix != 64)) {
 				fprintf(stderr,
 				"ERROR: Radix must be 16 or 64.\n");
-				return 1;
+				error = 1;
+				goto out;
 
 			}
 			break;
@@ -181,24 +188,27 @@ main(int argc, char **argv)
 			if ((fldbase < 1) || (fldbase > 127)) {
 				fprintf(stderr,
 				"ERROR: field base must be a hex, octal, or decimal integer > 0 and < 128.\n");
-				return 1;
+				error = 1;
+				goto out;
 			}
 			break;
 		default:
-			return 1;
+			error = 1;
+			goto out;
 		}
 	}
 
-	char	*line = NULL;
 	size_t	line_buf_len = 0;
 	ssize_t	line_len;
 	while ((line_len = getdelim(&line, &line_buf_len, delim, stdin)) > 0) {
 		if (line_len < 0) {
 			perror("ERROR getdelim()");
-			return 1;
+			error = 1;
+			goto out;
 		} else if (line == NULL) {
 			fprintf(stderr,"ERROR: char *line is null after getdelim()\n");
-			return 1;
+			error = 1;
+			goto out;
 		}
 		assert(line_len > 0);
 
@@ -207,10 +217,10 @@ main(int argc, char **argv)
 		line_len--;
 
 		/* set up error reporting for strtol() on user's input */
-		char	*errstring = NULL;
-		if ((errstring = malloc(line_len + 1)) == NULL) {
-			perror("ERROR malloc()");
-			return 1;
+		if ((errstring = (char *) realloc(errstring, line_len + 1)) == NULL) {
+			perror("ERROR realloc()");
+			error = 1;
+			goto out;
 		}
 		memset(errstring, ' ', line_len);
 		errstring[line_len] = '\0';
@@ -233,10 +243,10 @@ main(int argc, char **argv)
 		}
 
 		/* set up unsigned char array for processing */
-		unsigned char *raw = NULL;
-		if ((raw = calloc(raw_len + 1, sizeof(unsigned char))) == NULL) {
-			perror("ERROR malloc()");
-			return 1;
+		if ((raw = (unsigned char *) realloc(raw, raw_len + 1)) == NULL) {
+			perror("ERROR realloc()");
+			error = 1;
+			goto out;
 		}
 		raw[raw_len] = '\0';
 		unsigned char *rawp = raw;
@@ -282,23 +292,29 @@ main(int argc, char **argv)
 			errptr++;
 		}
 		free(errstring);
+		errstring = NULL;
 
 		puts(line); // is this really necessary?
 
-		char *randomart = NULL;
 		if ((randomart = fingerprint_randomart(raw, raw_len, (size_t)fldbase, palette)) == NULL) {
 			fprintf (stderr,"ERROR: fingerprint_randomart() returned NULL for input:\n");
 			fputs(line, stderr);
-			return 1;
+			error = 1;
+			goto out;
 		}
 		memset(line, 0, (size_t)line_len);
 		puts(randomart);
 
 		free(randomart);
+		randomart = NULL;
 		free(raw);
+		raw = NULL;
 	}
-
-	free(palette);
-	free(line);
-	return 0;
+	out:
+		free(palette);
+		free(line);
+		free(errstring);
+		free(raw);
+		free(randomart);
+		return error;
 }
