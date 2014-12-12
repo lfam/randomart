@@ -39,24 +39,22 @@
  * walked in either direction.
  */
 
-char *fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fld_base, char *palette);
+char *fingerprint_randomart(const unsigned char *raw, size_t raw_len, size_t fld_base, const char *palette);
 
 char * 
-fingerprint_randomart(unsigned char *raw, size_t raw_len, size_t fldbase, char *palette)
+fingerprint_randomart(const unsigned char *raw, size_t raw_len, size_t fldbase, const char *palette)
 {
 	/*
 	 * Chars to be used after each other every time the worm
 	 * intersects with itself.  Matter of taste.
 	 */
-	char	*augmentation_string = " .o+=*BOX@%&#/^SE";
+	const char *augmentation_string = " .o+=*BOX@%&#/^SE";
 	if (palette != NULL) augmentation_string = palette;
-	size_t	len = strlen(augmentation_string) - 1;
+	size_t len = strlen(augmentation_string) - 1;
 
 	char	*retval, *p;
-	size_t	b;
+	size_t	b, i, fld_x, fld_y;
 	ssize_t	x, y;
-	size_t  fld_x, fld_y;
-	size_t	i;
 
 	/*
 	* Field sizes for the random art.  Have to be odd, so the starting point

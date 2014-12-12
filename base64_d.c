@@ -21,7 +21,7 @@
  * software. If not, see <http://www.opensource.org/licenses>.
  */
 unsigned char *
-base64_d(char *in)
+base64_d(const char *in)
 {
 	/* base64 decoding array  */
 	const signed char alphabet[256] = {
