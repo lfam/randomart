@@ -1,34 +1,6 @@
-Sun, 7 Dec 2014 12:16:05 -0500
-TODO: add a command line parameter for number of input lines or characters to 
-read.
-
-This can be used to close a pipeline that is otherwise difficult to close
-cleanly, such as when reading from /dev/urandom.
-
 Thu,27 Nov 2014 14:40:57 -0500
 Make base64_d() take a "length" argument.
 
 Wed,19 Nov 2014 01:26:35 -0500
 strtol: http://stackoverflow.com/questions/14176123/correct-usage-of-strtol
-
-Mon,17 Nov 2014 23:39:29 -0500
-base64 encodes 3 bytes into 4, splitting the concatenation of the bytes into 4
-groups of 6 bits. The 6 bit groups are cast as chars against a custom base64
-alphabet. If a triplet is incomplete, pad the spaces with =. 
-
-Tue,11 Nov 2014 00:54:33 -0500
-Use isspace on errstring rather than asking strtol_wrapper() to use strtol_err.
-
-Also, don't memset errstring to whitespace when it's allocated. Add the
-whitespace in strtol_wrapper() as necessary.
-
-Mon,10 Nov 2014 10:38:34 -0500
-Currently, we process the user's input string two characters at a time, using
-strtoul() to convert the character pairs to an unsigned long int. Then, we cast
-to an unsigned char before handing over to the movement algorithm. This only
-works because we are expecting the input to be hexadecimal. The maximum value of
-2 characters of hex is 255, which is also the max value of unsigned char, aka
-one byte.
-
-This will need to change if we allow radices besides 16.
 
