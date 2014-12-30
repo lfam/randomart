@@ -208,6 +208,7 @@ main(int argc, char **argv)
 			error = 1;
 			goto out;
 		}
+		/* This shouldn't fail. getdelim() returns -1 for 0-length input */
 		assert(line_len > 0);
 
 		/* remove delimiter from end of line */
