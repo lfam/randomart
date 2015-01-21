@@ -1,3 +1,4 @@
+# www.icosaedro.it/c-modules.html
 debug=1
 GCC_FLAGS = -Wall -Wextra -DDEBUG -g3
 CLANG_FLAGS = -Weverything -DDEBUG -g -O0
@@ -6,32 +7,35 @@ ifeq ($(debug), 0)
 	CLANG_FLAGS = -Weverything -DNDEBUG
 endif
 
-GCC = gcc $(GCC_FLAGS)
-CLANG = clang $(CLANG_FLAGS)
+GCC = gcc
+CLANG = clang
 
 COMPILER = $(GCC)
+CFLAGS = $(GCC_FLAGS)
 ifeq ($(compiler), clang)
 	COMPILER = $(CLANG)
+	CFLAGS = $(CLANG_FLAGS)
 endif
 
 CC = $(COMPILER)
 
 .PHONY: clean
 
-randomart: randomart.c strtol_wrap.o base64_d.o
-	$(CC) -o randomart randomart.c strtol_wrap.o base64_d.o
+BIN = randomart
+OBJS = strtol_wrap.o base64_d.o
 
-base64_d: base64_d.o base64_d_cli.c
-	$(CC) -o base64_d base64_d.o base64_d_cli.c
+$(BIN): $(OBJS) $(BIN).c
+	$(CC) $(CFLAGS) $(OBJS) $(BIN).c -o $(BIN)
 
-base64_d.o: base64_d.c
-	$(CC) -c base64_d.c
+%.o: %.c %.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
+base64_d: base64_d_cli.c base64_d.o 
+	$(CC) $(CFLAGS) $@.o $< -o $@
 
 strtol_wrap: strtol_wrap_cli.c strtol_wrap.o
-	$(CC) -o strtol_wrap strtol_wrap_cli.c strtol_wrap.o
+	$(CC) $(CFLAGS) $@.o $< -o $@
 
-strtol_wrap.o: strtol_wrap.c
-	$(CC) -c strtol_wrap.c
 clean:
-	rm -f randomart base64_d strtol_wrap *.o
+	rm -f $(BIN) base64_d strtol_wrap *.o
 	rm -rf *.dSYM
