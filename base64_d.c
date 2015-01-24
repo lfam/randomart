@@ -21,7 +21,7 @@
  * software. If not, see <http://www.opensource.org/licenses>.
  */
 /* TODO
- * return int i, that is, length of input processed
+ * decrement i so we can return 0 if input is not truncated?
  */
 int
 base64_d(const char *in, char *out)
@@ -42,9 +42,10 @@ base64_d(const char *in, char *out)
 
 	out[3] = '\0';
 
-	char buff[4];
-	int i = 0, j;
+	char buff[4] = {0};
+	int i = 0;
 	while ((buff[i] = in[i]) && (buff[i] != '=') && (buff[i] != '\0')) {
+
 		if ( ++i == 4) {
 			for (i = 0; i != 4; i++) 
 				buff[i] = alphabet[(int)buff[i]];
@@ -58,7 +59,7 @@ base64_d(const char *in, char *out)
 	}
 
 	if (i) {
-	
+		int j;
 		for (j = 0; j < i; j++)
 			buff[j] = alphabet[(int)buff[j]];
 		for (j = i; j < 4; j++)
