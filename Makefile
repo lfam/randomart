@@ -37,5 +37,5 @@ strtol_wrap: strtol_wrap_cli.c strtol_wrap.o
 	$(CC) $(CFLAGS) $@.o $< -o $@
 
 clean:
-	rm -f $(BIN) base64_d strtol_wrap *.o
+	rm -f $(BIN) base64_d strtol_wrap *.o a.out
 	rm -rf *.dSYM
