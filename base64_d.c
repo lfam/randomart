@@ -44,8 +44,9 @@ base64_d(const char *in, char *out)
 
 	char buff[4] = {0};
 	int i = 0;
+	int rem = 4;
 	while ((buff[i] = in[i]) && (buff[i] != '=') && (buff[i] != '\0')) {
-
+		--rem;
 		if ( ++i == 4) {
 			for (i = 0; i != 4; i++) 
 				buff[i] = alphabet[(int)buff[i]];
@@ -54,7 +55,7 @@ base64_d(const char *in, char *out)
 			out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 			out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-			return i;
+			goto out;
 		}
 	}
 
@@ -69,7 +70,8 @@ base64_d(const char *in, char *out)
 		out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 		out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-		return i;
+		goto out;
 	}
-	return i;
+out:
+	return rem;
 }
