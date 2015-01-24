@@ -1,1 +1,1 @@
-unsigned char *base64_d(const char *);
+int base64_d(const char *, char *);

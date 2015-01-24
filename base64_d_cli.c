@@ -6,8 +6,8 @@
 int
 main(void)
 {
-	char *quad = NULL;
-	if ((quad = calloc(1, 5)) == NULL) return 1;
+	char triplet[4] = {0};
+	char quad[5] = {0};
 	
 	int delim = 10; // ASCII newline
 	int c;
@@ -15,19 +15,21 @@ main(void)
 	while (((c = getchar()) != delim) && (c != EOF)) {
 		quad[i] = c;
 		if (++i == 4) {
-			printf("%s", base64_d(quad));
+			base64_d(quad, triplet);
+			printf("%s\n", triplet);
 			i = 0;
-			memset(quad, '\0', 5);
+			memset(quad, 0, 5);
+			memset(triplet, 0, 4);
 		}
 	}
 
 	if(i) {
 		int j;
 		for (j = i; j < 4; j++)	quad[j] = '=';
-		printf("%s", base64_d(quad));
-		memset(quad, '\0', 5);
+		base64_d(quad, triplet);
+		printf("%s\n", triplet);
+		memset(quad, 0, 5);
+		memset(triplet, 0, 4);
 	}
-
-	free(quad);
 	return 0;
 }

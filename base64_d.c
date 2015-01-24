@@ -20,8 +20,11 @@
  * 6. You should have received a copy of the The MIT License along with this 
  * software. If not, see <http://www.opensource.org/licenses>.
  */
-unsigned char *
-base64_d(const char *in)
+/* TODO
+ * return int i, that is, length of input processed
+ */
+int
+base64_d(const char *in, char *out)
 {
 	/* base64 decoding array  */
 	const signed char alphabet[256] = {
@@ -37,7 +40,6 @@ base64_d(const char *in)
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 	-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}; 
 
-	static unsigned char out[4] = {'\0'};
 	out[3] = '\0';
 
 	char buff[4];
@@ -51,7 +53,7 @@ base64_d(const char *in)
 			out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 			out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-			return out;
+			return i;
 		}
 	}
 
@@ -66,7 +68,7 @@ base64_d(const char *in)
 		out[1] = (((buff[1] & 0x0f) << 4) ^ ((buff[2] & 0x3c) >> 2));
 		out[2] = (((buff[2] & 0x03) << 6) ^ (buff[3] & 0x3f));
 
-		return out;
+		return i;
 	}
-	return out;
+	return i;
 }
