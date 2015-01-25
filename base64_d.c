@@ -45,10 +45,10 @@ base64_d(const char *in, char *out)
 	char buff[4] = {0};
 	int i = 0;
 	int rem = 4;
-	while ((buff[i] = in[i]) && (buff[i] != '=') && (buff[i] != '\0')) {
+	while ((buff[i] = in[i]) && buff[i] != '=') {
 		--rem;
 		if ( ++i == 4) {
-			for (i = 0; i != 4; i++) 
+			for (i = 0; i < 4; i++)
 				buff[i] = alphabet[(int)buff[i]];
 			
 			out[0] = ((buff[0] << 2) ^ ((buff[1] & 0x30) >> 4));  
