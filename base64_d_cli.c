@@ -16,7 +16,7 @@ main(void)
 		quad[i] = c;
 		if (++i == 4) {
 			base64_d(quad, triplet);
-			printf("%s\n", triplet);
+			printf("%s", triplet);
 			i = 0;
 			memset(quad, 0, 5);
 			memset(triplet, 0, 4);
@@ -27,7 +27,7 @@ main(void)
 		int j;
 		for (j = i; j < 4; j++)	quad[j] = '=';
 		base64_d(quad, triplet);
-		printf("%s\n", triplet);
+		printf("%s", triplet);
 		memset(quad, 0, 5);
 		memset(triplet, 0, 4);
 	}
