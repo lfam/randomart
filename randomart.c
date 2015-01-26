@@ -272,7 +272,8 @@ main(int argc, char **argv)
 				break;
 			case 64:
 				;
-				unsigned char *decoded = base64_d(num);
+				char decoded[4] = {0};
+				base64_d(num, decoded);
 				memcpy(rawp, decoded, 3);
 				rawp += 3 * sizeof(unsigned char);
 				break;
